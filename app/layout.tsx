@@ -7,7 +7,7 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Personal Activity Tracker',
+  title: 'FocusLoop',
   description: 'Track, analyze, and improve your fitness journey with comprehensive activity logging and analytics',
   generator: 'v0.app',
   icons: {

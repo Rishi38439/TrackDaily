@@ -37,7 +37,7 @@ export const useActivityTracker = () => {
       const newSession = createSession();
       setSession(newSession);
       localStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
-      console.log('[v0] New session created:', newSession.code);
+      console.log('New session created:', newSession.code);
     }
 
     setIsLoaded(true);
@@ -53,13 +53,11 @@ export const useActivityTracker = () => {
   const addActivity = useCallback(
     (
       name: string,
-      category: string,
       duration: number,
-      calories: number,
       notes?: string
     ) => {
       if (!session) {
-        console.log('[v0] Session not initialized');
+        console.log('Session not initialized');
         return;
       }
 
@@ -67,15 +65,13 @@ export const useActivityTracker = () => {
         id: generateActivityId(),
         sessionId: session.id,
         name,
-        category,
         duration,
-        calories,
         timestamp: Date.now(),
         notes,
       };
 
       setActivities((prev) => [newActivity, ...prev]);
-      console.log('[v0] Activity added:', name, 'Duration:', duration, 'minutes');
+      console.log('Activity added:', name, 'Duration:', duration, 'minutes');
     },
     [session]
   );

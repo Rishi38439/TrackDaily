@@ -1,6 +1,6 @@
-# Personal Activity Tracker
+# Personal FocusLoop
 
-A premium fitness and wellness activity tracking application built with Next.js, React, and Tailwind CSS. Track your exercises, analyze trends, and maintain a comprehensive activity log with beautiful analytics.
+A fitness and wellness activity tracking application built with Next.js, React, and Tailwind CSS. Track your exercises, analyze trends, and maintain a comprehensive activity log with beautiful analytics.
 
 ## Features
 
@@ -23,7 +23,7 @@ A premium fitness and wellness activity tracking application built with Next.js,
 - **Clear All**: Reset all activities with confirmation
 
 ### Design
-- **Dark Mode**: Premium dark theme with glassmorphism effects
+- **Dark Mode**: Dark theme with glassmorphism effects
 - **Responsive Layout**: Mobile-first design that scales to all screen sizes
 - **Real-time Updates**: Instant UI updates as you log activities
 - **Smooth Animations**: 300ms transitions for a polished feel
@@ -150,7 +150,7 @@ Exported activities are stored as JSON in the following format:
 - **Secondary**: Purple (#8b5cf6) - Used in gradients
 - **Accent**: Orange (#f59e0b) - Used for calories
 - **Success**: Green (#10b981) - Used for outdoor activities
-- **Background**: Dark slate (#0f172a to #1e293b) - Premium dark theme
+- **Background**: Dark slate (#0f172a to #1e293b) - Dark theme
 
 ## Future Enhancements
 

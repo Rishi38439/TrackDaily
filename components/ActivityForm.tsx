@@ -3,77 +3,186 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import { 
+  Clock,
+  Check,
+  X
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
 
 interface ActivityFormProps {
   onSubmit: (
     name: string,
-    category: string,
-    duration: number,
-    calories: number,
-    notes?: string
+    duration: number
   ) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export function ActivityForm({ onSubmit }: ActivityFormProps) {
-  const [name, setName] = useState('');
+const quickTemplates = [
+  { name: 'Morning Run', duration: 0.5 },
+  { name: 'Gym Workout', duration: 1 },
+  { name: 'Yoga Session', duration: 0.75 },
+  { name: 'Evening Walk', duration: 0.33 }
+];
+
+export function ActivityForm({ onSubmit, isOpen, onClose }: ActivityFormProps) {
+  const [formData, setFormData] = useState({
+    name: '',
+    duration: 1
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
 
-    if (!name.trim()) {
-      console.log('[v0] Form validation failed: activity name is empty');
-      return;
-    }
+    if (!formData.name) return;
 
     setIsSubmitting(true);
     
-    const activityData = {
-      name: name.trim(),
-      category: 'cardio',
-      duration: 0, // Start with 0 duration, user can adjust via ActivityItem
-      calories: 0,
-      timestamp: new Date().toISOString(),
-    };
-    
-    console.log('[v0] Creating new activity:', activityData);
-    
     onSubmit(
-      activityData.name,
-      activityData.category,
-      activityData.duration,
-      activityData.calories
+      formData.name,
+      formData.duration
     );
 
-    // Reset form
-    setName('');
+    // Show success toast
+    toast({
+      title: "Activity Logged! 🎯",
+      description: `${formData.name} completed successfully`,
+      duration: 3000,
+    });
+
+    setFormData({
+      name: '',
+      duration: 30
+    });
     setIsSubmitting(false);
-    
-    console.log('[v0] Activity created and form reset');
+    onClose();
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="w-full">
-      <div className="flex items-center gap-4 rounded-lg bg-white/5 border border-white/10 p-4">
-        {/* Activity Name Input */}
-        <Input
-          placeholder="Enter Activity Name (e.g., GYM)..."
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="flex-1 border-0 bg-transparent text-white placeholder:text-white/40 focus:outline-none focus:ring-0 text-lg"
-          required
-        />
+  const selectTemplate = (template: typeof quickTemplates[0]) => {
+    setFormData({
+      name: template.name,
+      duration: template.duration
+    });
+  };
 
-        {/* Send Button - Square with 10deg rounded corners */}
-        <Button
-          type="submit"
-          disabled={isSubmitting || !name.trim()}
-          className="h-10 w-10 p-0 rounded-[10px] bg-blue-500/80 hover:bg-blue-500 disabled:opacity-50 text-white"
-        >
-          <Send className="h-5 w-5" />
-        </Button>
-      </div>
-    </form>
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <Card className="w-full max-w-2xl bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl">
+        <CardContent className="p-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-white">Log Activity</h2>
+            <Button
+              variant="ghost"
+              onClick={onClose}
+              className="text-white/60 hover:text-white hover:bg-white/10"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Activity Name */}
+            <div>
+              <label className="text-sm font-medium text-white/80 mb-3 block">Activity Name</label>
+              <Input
+                placeholder="Enter activity name..."
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/40 rounded-xl h-14 text-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                required
+              />
+            </div>
+
+            {/* Duration */}
+            <div>
+              <label className="text-sm font-medium text-white/80 mb-3 block flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                Duration (hours)
+              </label>
+              <Input
+                type="number"
+                value={formData.duration}
+                onChange={(e) => setFormData({ ...formData, duration: parseFloat(e.target.value) })}
+                className="bg-white/5 border-white/10 text-white rounded-xl h-14 text-lg focus:ring-2 focus:ring-blue-500/50"
+                min="0.5"
+                max="8"
+                step="0.5"
+                required
+              />
+              <input
+                type="range"
+                min="0.5"
+                max="8"
+                step="0.5"
+                value={formData.duration}
+                onChange={(e) => setFormData({ ...formData, duration: parseFloat(e.target.value) })}
+                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer slider mt-3"
+              />
+              <div className="flex justify-between text-xs text-white/50 mt-1">
+                <span>0.5h</span>
+                <span>8h</span>
+              </div>
+            </div>
+
+            
+            {/* Quick Templates */}
+            <div>
+              <h4 className="text-sm font-medium text-white/80 mb-3">Quick Templates</h4>
+              <div className="grid grid-cols-2 gap-3">
+                {quickTemplates.map((template) => (
+                  <Button
+                    key={template.name}
+                    type="button"
+                    variant="outline"
+                    onClick={() => selectTemplate(template)}
+                    className="bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-white/20 rounded-xl h-auto p-4 justify-start"
+                  >
+                    <div className="text-left">
+                      <p className="font-medium">{template.name}</p>
+                      <p className="text-xs text-white/60">
+                        {template.duration} minutes
+                      </p>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="bg-white/5 border-white/10 text-white hover:bg-white/10 rounded-xl"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !formData.name}
+                className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 rounded-xl"
+              >
+                {isSubmitting ? (
+                  'Saving...'
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Log Activity
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
