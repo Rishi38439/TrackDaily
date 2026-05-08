@@ -45,14 +45,13 @@ export function ActivityTable({ activities, onDelete }: ActivityTableProps) {
                 <th className="px-4 py-3 text-left text-sm font-medium text-white/60">Activity</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-white/60">Category</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-white/60">Duration</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-white/60">Calories</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-white/60">Date</th>
                 <th className="px-4 py-3 text-center text-sm font-medium text-white/60">Action</th>
               </tr>
             </thead>
             <tbody>
               {activities.map((activity) => (
-                <tr key={activity.id} className="border-b border-white/5 hover:bg-white/5">
+                <tr key={activity.id} className="border-b border-white/10 hover:bg-white/10">
                   <td className="px-4 py-3">
                     <p className="font-medium">{activity.name}</p>
                     {activity.notes && <p className="text-sm text-white/50">{activity.notes}</p>}
@@ -64,11 +63,6 @@ export function ActivityTable({ activities, onDelete }: ActivityTableProps) {
                   <td className="px-4 py-3 text-right">
                     <span className="inline-block rounded-full bg-blue-500/20 px-3 py-1 text-sm font-medium text-blue-300">
                       {formatDuration(activity.duration)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="inline-block rounded-full bg-orange-500/20 px-3 py-1 text-sm font-medium text-orange-300">
-                      {activity.calories} kcal
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-white/60">

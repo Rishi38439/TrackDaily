@@ -3,7 +3,7 @@
 import { Activity, ActivityStats } from '@/types/activity';
 import { calculateStats, formatDuration } from '@/lib/activityUtils';
 import { Card, CardContent } from '@/components/ui/card';
-import { TrendingUp, Flame, Clock, Target } from 'lucide-react';
+import { TrendingUp, Clock, Target } from 'lucide-react';
 
 interface SummaryCardsProps {
   activities: Activity[];
@@ -28,13 +28,6 @@ export function SummaryCards({ activities }: SummaryCardsProps) {
       accent: 'text-purple-400',
     },
     {
-      title: 'Calories Burned',
-      value: stats.totalCalories.toLocaleString(),
-      icon: Flame,
-      color: 'from-orange-500/20 to-red-500/20',
-      accent: 'text-orange-400',
-    },
-    {
       title: 'Avg. Duration',
       value: formatDuration(stats.averageDuration),
       icon: TrendingUp,
@@ -44,7 +37,7 @@ export function SummaryCards({ activities }: SummaryCardsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {cards.map((card) => {
         const Icon = card.icon;
         return (

@@ -19,7 +19,7 @@ export function VisualsView({ activities }: VisualsViewProps) {
       </div>
 
       {activities.length === 0 ? (
-        <div className="bg-white/5 border border-white/10 rounded-lg p-12 flex items-center justify-center">
+        <div className="bg-black border border-white/10 rounded-lg p-12 flex items-center justify-center">
           <p className="text-white/50 text-center">No activities yet. Create your first activity to see analytics!</p>
         </div>
       ) : (
@@ -27,7 +27,7 @@ export function VisualsView({ activities }: VisualsViewProps) {
           {uniqueActivities.map((activityName) => (
             <div
               key={activityName}
-              className="bg-white/5 border border-white/10 rounded-lg p-6"
+              className="bg-black border border-white/10 rounded-lg p-6"
             >
               <h3 className="text-lg font-semibold text-white mb-4">{activityName}</h3>
               <ActivityLineGraph

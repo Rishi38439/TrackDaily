@@ -10,14 +10,12 @@ export const calculateStats = (activities: Activity[]): ActivityStats => {
     return {
       totalActivities: 0,
       totalDuration: 0,
-      totalCalories: 0,
       averageDuration: 0,
       mostCommonCategory: 'N/A',
     };
   }
 
   const totalDuration = activities.reduce((sum, a) => sum + a.duration, 0);
-  const totalCalories = activities.reduce((sum, a) => sum + a.calories, 0);
   
   const categoryCounts = activities.reduce((acc, a) => {
     acc[a.category] = (acc[a.category] || 0) + 1;
@@ -31,7 +29,6 @@ export const calculateStats = (activities: Activity[]): ActivityStats => {
   return {
     totalActivities: activities.length,
     totalDuration,
-    totalCalories,
     averageDuration: Math.round(totalDuration / activities.length),
     mostCommonCategory,
   };
@@ -45,7 +42,7 @@ export const getChartData = (activities: Activity[], days: number = 7): ChartDat
     const date = new Date(now);
     date.setDate(date.getDate() - i);
     const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    dates[dateStr] = { date: dateStr, duration: 0, calories: 0, count: 0 };
+    dates[dateStr] = { date: dateStr, duration: 0, count: 0 };
   }
 
   activities.forEach((activity) => {
@@ -53,7 +50,6 @@ export const getChartData = (activities: Activity[], days: number = 7): ChartDat
     const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     if (dates[dateStr]) {
       dates[dateStr].duration += activity.duration;
-      dates[dateStr].calories += activity.calories;
       dates[dateStr].count += 1;
     }
   });
@@ -92,9 +88,9 @@ export const getCategoryColor = (category: string): string => {
     sports: '#f59e0b',
     outdoor: '#10b981',
     mind: '#8b5cf6',
-    other: '#6b7280',
+    other: '#06b6d4',
   };
-  return colors[category] || '#6b7280';
+  return colors[category] || '#06b6d4';
 };
 
 export const getCategoryIcon = (category: string): string => {

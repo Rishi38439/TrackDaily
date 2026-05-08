@@ -72,7 +72,7 @@ export function Layout({
   const todayCalories = todayStats.reduce((acc, activity) => acc + activity.calories, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen bg-black">
       {/* Ambient animated background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
@@ -98,7 +98,7 @@ export function Layout({
                 </div>
                 {sidebarOpen && (
                   <div>
-                    <h1 className="text-xl font-bold text-white">FocusLoop</h1>
+                    <h1 className="text-xl font-bold text-white">TrackDaily</h1>
                     <p className="text-xs text-white/50">Track Your Momentum</p>
                   </div>
                 )}

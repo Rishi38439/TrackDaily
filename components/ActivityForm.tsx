@@ -41,11 +41,17 @@ export function ActivityForm({ onSubmit, isOpen, onClose }: ActivityFormProps) {
 
     if (!formData.name) return;
 
+    // Validation: duration must be between 0 and 24 hours
+    if (formData.duration < 0 || formData.duration > 24) {
+      alert('Duration must be between 0 and 24 hours');
+      return;
+    }
+
     setIsSubmitting(true);
     
     onSubmit(
       formData.name,
-      formData.duration
+      Math.round(formData.duration * 60) // Convert hours to minutes
     );
 
     // Show success toast
@@ -57,7 +63,7 @@ export function ActivityForm({ onSubmit, isOpen, onClose }: ActivityFormProps) {
 
     setFormData({
       name: '',
-      duration: 30
+      duration: 1
     });
     setIsSubmitting(false);
     onClose();
@@ -109,26 +115,27 @@ export function ActivityForm({ onSubmit, isOpen, onClose }: ActivityFormProps) {
               <Input
                 type="number"
                 value={formData.duration}
-                onChange={(e) => setFormData({ ...formData, duration: parseFloat(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, duration: parseFloat(e.target.value) || 0 })}
                 className="bg-white/5 border-white/10 text-white rounded-xl h-14 text-lg focus:ring-2 focus:ring-blue-500/50"
-                min="0.5"
-                max="8"
-                step="0.5"
+                min="0"
+                max="24"
+                step="0.25"
                 required
               />
               <input
                 type="range"
-                min="0.5"
-                max="8"
-                step="0.5"
+                min="0"
+                max="24"
+                step="0.25"
                 value={formData.duration}
-                onChange={(e) => setFormData({ ...formData, duration: parseFloat(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, duration: parseFloat(e.target.value) || 0 })}
                 className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer slider mt-3"
               />
               <div className="flex justify-between text-xs text-white/50 mt-1">
-                <span>0.5h</span>
-                <span>8h</span>
+                <span>0h</span>
+                <span>24h</span>
               </div>
+              <p className="text-xs text-white/50 mt-2">Maximum: 24 hours</p>
             </div>
 
             
@@ -147,7 +154,7 @@ export function ActivityForm({ onSubmit, isOpen, onClose }: ActivityFormProps) {
                     <div className="text-left">
                       <p className="font-medium">{template.name}</p>
                       <p className="text-xs text-white/60">
-                        {template.duration} minutes
+                        {template.duration} hours
                       </p>
                     </div>
                   </Button>

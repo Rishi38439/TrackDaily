@@ -7,8 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   LineChart,
   Line,
-  BarChart,
-  Bar,
   PieChart,
   Pie,
   Cell,
@@ -19,7 +17,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { Empty } from '@/components/ui/empty';
+import { Empty, EmptyContent, EmptyTitle, EmptyDescription } from '@/components/ui/empty';
 
 interface ChartsPanelProps {
   activities: Activity[];
@@ -34,11 +32,12 @@ export function ChartsPanel({ activities }: ChartsPanelProps) {
           <CardDescription>View your activity trends and insights</CardDescription>
         </CardHeader>
         <CardContent>
-          <Empty
-            icon="📊"
-            title="No analytics available"
-            description="Log some activities to see your analytics"
-          />
+          <Empty>
+            <EmptyContent>
+              <EmptyTitle>No analytics available</EmptyTitle>
+              <EmptyDescription>Log some activities to see your analytics</EmptyDescription>
+            </EmptyContent>
+          </Empty>
         </CardContent>
       </Card>
     );
@@ -67,9 +66,8 @@ export function ChartsPanel({ activities }: ChartsPanelProps) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="duration" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="duration">Duration Trend</TabsTrigger>
-            <TabsTrigger value="calories">Calories Trend</TabsTrigger>
             <TabsTrigger value="breakdown">Category Breakdown</TabsTrigger>
           </TabsList>
 
@@ -83,7 +81,7 @@ export function ChartsPanel({ activities }: ChartsPanelProps) {
                   <Tooltip
                     contentStyle={{
                       backgroundColor: 'rgba(0,0,0,0.8)',
-                      border: '1px solid rgba(255,255,255,0.2)',
+                      border: '1px solid rgba(122, 189, 189, 0.2)',
                       borderRadius: '8px',
                     }}
                     labelStyle={{ color: '#fff' }}
@@ -103,28 +101,7 @@ export function ChartsPanel({ activities }: ChartsPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="calories" className="mt-6">
-            <div className="h-80 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="date" stroke="rgba(255,255,255,0.5)" />
-                  <YAxis stroke="rgba(255,255,255,0.5)" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'rgba(0,0,0,0.8)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '8px',
-                    }}
-                    labelStyle={{ color: '#fff' }}
-                  />
-                  <Legend />
-                  <Bar dataKey="calories" fill="#f59e0b" name="Calories Burned" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </TabsContent>
-
+          
           <TabsContent value="breakdown" className="mt-6">
             <div className="flex h-80 w-full items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
@@ -145,11 +122,11 @@ export function ChartsPanel({ activities }: ChartsPanelProps) {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'rgba(0,0,0,0.8)',
-                      border: '1px solid rgba(255,255,255,0.2)',
+                      backgroundColor: 'rgba(17,24,39,0.9)',
+                      border: '1px solid rgba(34,211,238,0.3)',
                       borderRadius: '8px',
                     }}
-                    labelStyle={{ color: '#fff' }}
+                    labelStyle={{ color: '#22d3ee' }}
                   />
                 </PieChart>
               </ResponsiveContainer>

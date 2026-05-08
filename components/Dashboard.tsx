@@ -7,6 +7,14 @@ import { Analytics } from './Analytics';
 import { ActivityHistory } from './ActivityHistory';
 import { ActivityForm } from './ActivityForm';
 import { SessionManager } from './SessionManager';
+import { SummaryCards } from './SummaryCards';
+import { ChartsPanel } from './ChartsPanel';
+import { ActivityTable } from './ActivityTable';
+import { ActivityInput } from './ActivityInput';
+import { DurationTrend } from './DurationTrend';
+import { SettingsPanel } from './SettingsPanel';
+import { LoginForm } from './auth/LoginForm';
+import { RegisterForm } from './auth/RegisterForm';
 import { Card, CardContent } from '@/components/ui/card';
 import { Download, Upload, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +30,7 @@ interface DashboardProps {
     duration: number
   ) => void;
   onDeleteActivity: (id: string) => void;
+  onUpdateActivity: (id: string, updates: Partial<Activity>) => void;
 }
 
 export function Dashboard({
@@ -30,10 +39,18 @@ export function Dashboard({
   sessionCode,
   onAddActivity,
   onDeleteActivity,
+  onUpdateActivity,
 }: DashboardProps) {
+  // Wrapper function to convert duration-only update to Partial<Activity>
+  const handleUpdateActivityDuration = (id: string, duration: number) => {
+    onUpdateActivity(id, { duration });
+  };
+
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [showActivityForm, setShowActivityForm] = useState(false);
   const [showSessionManager, setShowSessionManager] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
 
   const handleQuickAdd = () => {
     setShowActivityForm(true);
@@ -43,7 +60,7 @@ export function Dashboard({
     const dataStr = JSON.stringify(activities, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
     
-    const exportFileDefaultName = `focusloop-activities-${new Date().toISOString().split('T')[0]}.json`;
+    const exportFileDefaultName = `TrackDaily-activities-${new Date().toISOString().split('T')[0]}.json`;
     
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
@@ -78,10 +95,34 @@ export function Dashboard({
 
   const renderCurrentView = () => {
     switch (currentView) {
+      case 'dashboard':
+        return (
+          <div className="space-y-8">
+            <SummaryCards activities={activities} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <ActivityInput activities={activities} onAddActivity={onAddActivity} onDeleteActivity={onDeleteActivity} onUpdateActivity={handleUpdateActivityDuration} />
+              <DurationTrend activities={activities} />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <ChartsPanel activities={activities} />
+              <ActivityTable activities={activities} onDelete={onDeleteActivity} />
+            </div>
+          </div>
+        );
       
+      case 'log-activity':
+        return (
+          <div className="max-w-2xl mx-auto">
+            <ActivityForm
+              isOpen={true}
+              onClose={() => setCurrentView('dashboard')}
+              onSubmit={onAddActivity}
+            />
+          </div>
+        );
       
       case 'analytics':
-        return <Analytics activities={activities} />;
+        return <Analytics activities={activities} onAddActivity={onAddActivity} />;
       
       case 'history':
         return <ActivityHistory activities={activities} onDeleteActivity={onDeleteActivity} />;
@@ -95,7 +136,7 @@ export function Dashboard({
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-2xl">
+              <Card className="bg-black border border-white/10 rounded-2xl">
                 <CardContent className="p-8">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
@@ -119,7 +160,7 @@ export function Dashboard({
                 </CardContent>
               </Card>
 
-              <Card className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-2xl">
+              <Card className="bg-black border border-white/10 rounded-2xl">
                 <CardContent className="p-8">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
@@ -144,7 +185,7 @@ export function Dashboard({
               </Card>
             </div>
 
-            <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-white/10 rounded-2xl">
+            <Card className="bg-black border border-white/10 rounded-2xl">
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold text-white mb-2">Data Summary</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -165,51 +206,7 @@ export function Dashboard({
         );
       
       case 'settings':
-        return (
-          <div className="max-w-4xl mx-auto space-y-8">
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-2">Settings</h2>
-              <p className="text-white/60">Manage your preferences and account</p>
-            </div>
-            
-            <Card className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-2xl">
-              <CardContent className="p-8">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-slate-500 rounded-xl flex items-center justify-center">
-                    <Settings className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-white">Session Information</h3>
-                    <p className="text-white/60">Your current session details</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10">
-                    <div>
-                      <p className="text-white/60 text-sm">Session Code</p>
-                      <p className="text-white font-mono">{sessionCode}</p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowSessionManager(true)}
-                      className="bg-white/5 border-white/10 text-white hover:bg-white/10"
-                    >
-                      Manage
-                    </Button>
-                  </div>
-                  
-                  <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10">
-                    <div>
-                      <p className="text-white/60 text-sm">Session ID</p>
-                      <p className="text-white font-mono text-sm">{sessionId}</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        );
+        return <SettingsPanel onLoginClick={() => setShowLogin(true)} />;
     }
   };
 
@@ -238,6 +235,51 @@ export function Dashboard({
         isOpen={showSessionManager}
         onOpenChange={setShowSessionManager}
       />
+
+      {/* Login Modal */}
+      {showLogin && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="w-full max-w-md">
+            <LoginForm 
+              onLoginSuccess={() => {
+                setShowLogin(false);
+                setCurrentView('dashboard');
+              }}
+              onRegisterClick={() => {
+                setShowLogin(false);
+                setShowRegister(true);
+              }}
+            />
+            <div className="mt-4 text-center">
+              <Button
+                variant="ghost"
+                onClick={() => setShowLogin(false)}
+                className="text-white/50 hover:text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Register Modal */}
+      {showRegister && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="w-full max-w-md">
+            <RegisterForm 
+              onRegisterSuccess={() => {
+                setShowRegister(false);
+                setCurrentView('dashboard');
+              }}
+              onBackClick={() => {
+                setShowRegister(false);
+                setShowLogin(true);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

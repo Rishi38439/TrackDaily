@@ -1,4 +1,4 @@
-# Personal FocusLoop
+# Personal TrackDaily
 
 A fitness and wellness activity tracking application built with Next.js, React, and Tailwind CSS. Track your exercises, analyze trends, and maintain a comprehensive activity log with beautiful analytics.
 
@@ -70,8 +70,7 @@ interface Activity {
   sessionId: string;           // Session identifier
   name: string;               // Activity name
   category: string;           // Activity category
-  duration: number;           // Duration in minutes
-  calories: number;           // Estimated calories burned
+  duration: number;           // Duration in minutes (0-1440)
   timestamp: number;          // Creation timestamp (ms)
   notes?: string;             // Optional notes
 }
@@ -97,13 +96,13 @@ pnpm dev
 ### Usage
 
 1. **Logging an Activity**:
-   - Fill in the activity form with name, category, duration, and calories
+   - Fill in the activity form with name, category, and duration (0-24 hours)
    - Add optional notes
    - Click "Log Activity"
 
 2. **Viewing Analytics**:
    - Summary cards show key metrics at a glance
-   - Switch between chart tabs to view duration trends, calorie trends, and category breakdown
+   - Switch between chart tabs to view duration trends and category breakdown
 
 3. **Managing Activities**:
    - View all activities in the table below the charts
@@ -130,7 +129,6 @@ Exported activities are stored as JSON in the following format:
     "name": "Morning Run",
     "category": "cardio",
     "duration": 30,
-    "calories": 300,
     "timestamp": 1704067200000,
     "notes": "Great weather today"
   }

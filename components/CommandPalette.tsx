@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Command } from 'cmdk';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { 
   Search,
   Plus,
@@ -119,19 +119,23 @@ export function CommandPalette({ isOpen, onClose, onViewChange, onQuickAdd }: Co
     }
   ];
 
+  const filteredCommands = commands.filter(command =>
+    command.label.toLowerCase().includes(search.toLowerCase())
+  );
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center pt-[20vh] z-50">
       <Card className="w-full max-w-2xl bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl">
-        <Command className="rounded-lg">
+        <div className="rounded-lg">
           <div className="flex items-center border-b border-white/10 px-4">
             <Search className="w-5 h-5 text-white/50 mr-3" />
-            <Command.Input
+            <Input
               ref={inputRef}
               placeholder="Type a command or search..."
               value={search}
-              onValueChange={setSearch}
+              onChange={(e) => setSearch(e.target.value)}
               className="flex-1 bg-transparent border-0 text-white placeholder:text-white/40 focus:outline-none focus:ring-0 py-4"
             />
             <Button
@@ -144,33 +148,34 @@ export function CommandPalette({ isOpen, onClose, onViewChange, onQuickAdd }: Co
             </Button>
           </div>
           
-          <Command.List className="max-h-96 overflow-y-auto p-2">
-            <Command.Empty className="py-6 text-center text-white/60">
-              No commands found.
-            </Command.Empty>
-            
-            {commands.map((command) => {
-              const Icon = command.icon;
-              return (
-                <Command.Item
-                  key={command.id}
-                  onSelect={command.action}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg text-white cursor-pointer",
-                    "hover:bg-white/10 transition-colors duration-200",
-                    "[&[aria-selected='true']]:bg-white/10"
-                  )}
-                >
-                  <Icon className="w-5 h-5 text-white/60" />
-                  <span className="flex-1">{command.label}</span>
-                  <kbd className="text-xs text-white/40 bg-white/10 px-2 py-1 rounded">
-                    {command.shortcut}
-                  </kbd>
-                </Command.Item>
-              );
-            })}
-          </Command.List>
-        </Command>
+          <div className="max-h-96 overflow-y-auto p-2">
+            {filteredCommands.length === 0 ? (
+              <div className="py-6 text-center text-white/60">
+                No commands found.
+              </div>
+            ) : (
+              filteredCommands.map((command) => {
+                const Icon = command.icon;
+                return (
+                  <div
+                    key={command.id}
+                    onClick={command.action}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-white cursor-pointer",
+                      "hover:bg-white/10 transition-colors duration-200"
+                    )}
+                  >
+                    <Icon className="w-5 h-5 text-white/60" />
+                    <span className="flex-1">{command.label}</span>
+                    <kbd className="text-xs text-white/40 bg-white/10 px-2 py-1 rounded">
+                      {command.shortcut}
+                    </kbd>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
       </Card>
     </div>
   );

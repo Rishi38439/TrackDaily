@@ -13,34 +13,38 @@ export const useActivityTracker = () => {
 
   // Initialize session and load activities
   useEffect(() => {
-    const storedActivities = localStorage.getItem(STORAGE_KEY);
-    const storedSession = localStorage.getItem(SESSION_KEY);
+    const initializeSession = async () => {
+      const storedActivities = localStorage.getItem(STORAGE_KEY);
+      const storedSession = localStorage.getItem(SESSION_KEY);
 
-    if (storedActivities) {
-      try {
-        setActivities(JSON.parse(storedActivities));
-      } catch {
-        console.error('Failed to parse activities from localStorage');
+      if (storedActivities) {
+        try {
+          setActivities(JSON.parse(storedActivities));
+        } catch {
+          console.error('Failed to parse activities from localStorage');
+        }
       }
-    }
 
-    if (storedSession) {
-      try {
-        setSession(JSON.parse(storedSession));
-      } catch {
-        console.error('Failed to parse session from localStorage');
-        const newSession = createSession();
+      if (storedSession) {
+        try {
+          setSession(JSON.parse(storedSession));
+        } catch {
+          console.error('Failed to parse session from localStorage');
+          const newSession = await createSession();
+          setSession(newSession);
+          localStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
+        }
+      } else {
+        const newSession = await createSession();
         setSession(newSession);
         localStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
+        console.log('New session created:', newSession.code);
       }
-    } else {
-      const newSession = createSession();
-      setSession(newSession);
-      localStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
-      console.log('New session created:', newSession.code);
-    }
 
-    setIsLoaded(true);
+      setIsLoaded(true);
+    };
+
+    initializeSession();
   }, []);
 
   // Save activities to localStorage whenever they change
@@ -54,10 +58,17 @@ export const useActivityTracker = () => {
     (
       name: string,
       duration: number,
-      notes?: string
+      notes?: string,
+      category?: string
     ) => {
       if (!session) {
         console.log('Session not initialized');
+        return;
+      }
+
+      // Validation: duration must be between 0 and 1440 minutes (24 hours)
+      if (duration < 0 || duration > 1440) {
+        console.error('Duration must be between 0 and 24 hours (1440 minutes)');
         return;
       }
 
@@ -65,6 +76,7 @@ export const useActivityTracker = () => {
         id: generateActivityId(),
         sessionId: session.id,
         name,
+        category: category || 'other',
         duration,
         timestamp: Date.now(),
         notes,

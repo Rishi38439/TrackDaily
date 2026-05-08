@@ -25,7 +25,7 @@ export function SessionManager({ sessionCode, isOpen, onOpenChange }: SessionMan
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-lg bg-slate-800 border border-white/10">
+      <DialogContent className="rounded-lg bg-black border border-white/10">
         <DialogHeader>
           <DialogTitle className="text-white">Session Information</DialogTitle>
           <DialogDescription className="text-white/60">
@@ -34,7 +34,7 @@ export function SessionManager({ sessionCode, isOpen, onOpenChange }: SessionMan
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+          <div className="bg-black rounded-lg p-4 border border-white/10">
             <p className="text-sm text-white/70 mb-2">Session Code</p>
             <div className="flex items-center gap-2">
               <div className="flex-1 flex items-center gap-2">

@@ -20,12 +20,14 @@ import {
 import { cn } from '@/lib/utils';
 import { ActivityLineGraph } from './ActivityLineGraph';
 import { ActivitySectorView } from './ActivitySectorView';
+import { ActivityInput } from './ActivityInput';
 
 interface AnalyticsProps {
   activities: Activity[];
+  onAddActivity?: (name: string, duration: number) => void;
 }
 
-export function Analytics({ activities }: AnalyticsProps) {
+export function Analytics({ activities, onAddActivity }: AnalyticsProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
   const [selectedMetric, setSelectedMetric] = useState<'duration' | 'activities'>('duration');
 
@@ -239,6 +241,11 @@ export function Analytics({ activities }: AnalyticsProps) {
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Activity Input */}
+        {onAddActivity && (
+          <ActivityInput activities={activities} onAddActivity={onAddActivity} />
+        )}
+        
         {/* Line Chart */}
         <Card className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-2xl">
           <CardHeader>
@@ -257,8 +264,7 @@ export function Analytics({ activities }: AnalyticsProps) {
             </div>
           </CardContent>
         </Card>
-
-              </div>
+      </div>
 
       {/* Personal Records */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
