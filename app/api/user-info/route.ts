@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { storeUserInfo, getUserInfoByLogCode, getUserInfoBySessionId, updateUserSession, deleteUserInfo, getAllUsers } from '@/lib/userService';
+import { storeUserInfo, getUserInfoByLogCode, getUserInfoBySessionId, updateUserSession, deleteUserInfo, getAllUsers, verifySession, getUserInfoBySessionCode } from '@/lib/userService';
 
 export async function POST(request: NextRequest) {
   try {
-    const { action, log_code, session_id } = await request.json();
+    const { action, log_code, session_id, session_code } = await request.json();
 
     switch (action) {
       case 'store':
-        if (!log_code || !session_id) {
-          return NextResponse.json({ error: 'log_code and session_id are required' }, { status: 400 });
+        if (!log_code || !session_id || !session_code) {
+          return NextResponse.json({ error: 'log_code, session_id, and session_code are required' }, { status: 400 });
         }
-        const storeResult = await storeUserInfo(log_code, session_id);
+        const storeResult = await storeUserInfo(log_code, session_id, session_code);
         return NextResponse.json({ success: true, data: storeResult });
+
+      case 'verify':
+        if (!session_code || !log_code) {
+          return NextResponse.json({ error: 'session_code and log_code are required' }, { status: 400 });
+        }
+        const verifyResult = await verifySession(session_code, log_code);
+        return NextResponse.json({ success: true, data: verifyResult });
 
       case 'update':
         if (!log_code || !session_id) {
@@ -41,6 +48,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const log_code = searchParams.get('log_code');
     const session_id = searchParams.get('session_id');
+    const session_code = searchParams.get('session_code');
     const action = searchParams.get('action');
 
     switch (action) {
@@ -61,6 +69,13 @@ export async function GET(request: NextRequest) {
         }
         const userBySession = await getUserInfoBySessionId(session_id);
         return NextResponse.json({ success: true, data: userBySession });
+
+      case 'by-session-code':
+        if (!session_code) {
+          return NextResponse.json({ error: 'session_code is required' }, { status: 400 });
+        }
+        const userBySessionCode = await getUserInfoBySessionCode(session_code);
+        return NextResponse.json({ success: true, data: userBySessionCode });
 
       default:
         if (log_code) {

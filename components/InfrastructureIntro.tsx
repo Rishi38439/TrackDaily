@@ -7,7 +7,7 @@ interface InfrastructureIntroProps {
   onComplete?: () => void;
 }
 
-type TimeOfDay = 'sunrise' | 'morning' | 'noon' | 'afternoon' | 'sunset' | 'night';
+type TimeOfDay = 'sunrise' | 'morning' | 'noon' | 'afternoon' | 'sunset' | 'evening' | 'night' | 'mid-night';
 
 interface SkyGradient {
   from: string;
@@ -47,11 +47,23 @@ const skyGradients: Record<TimeOfDay, SkyGradient> = {
     to: 'rgba(75, 0, 130, 0.3)',
     ambient: 'rgba(255, 94, 77, 0.06)'
   },
+  evening: {
+    from: 'rgba(75, 0, 130, 0.3)',
+    via: 'rgba(25, 25, 112, 0.3)',
+    to: 'rgba(0, 0, 50, 0.4)',
+    ambient: 'rgba(75, 0, 130, 0.04)'
+  },
   night: {
     from: 'rgba(25, 25, 112, 0.4)',
     via: 'rgba(0, 0, 50, 0.3)',
     to: 'rgba(0, 0, 0, 0.8)',
     ambient: 'rgba(25, 25, 112, 0.03)'
+  },
+  'mid-night': {
+    from: 'rgba(0, 0, 20, 0.6)',
+    via: 'rgba(0, 0, 40, 0.4)',
+    to: 'rgba(0, 0, 0, 0.9)',
+    ambient: 'rgba(0, 0, 60, 0.02)'
   }
 };
 
@@ -67,12 +79,14 @@ export default function InfrastructureIntro({ onComplete }: InfrastructureIntroP
     const getTimeOfDay = (): TimeOfDay => {
       const hour = new Date().getHours();
       
-      if (hour >= 5 && hour < 7) return 'sunrise';
-      if (hour >= 7 && hour < 10) return 'morning';
-      if (hour >= 10 && hour < 14) return 'noon';
-      if (hour >= 14 && hour < 17) return 'afternoon';
-      if (hour >= 17 && hour < 20) return 'sunset';
-      return 'night';
+      if (hour >= 5 && hour < 6) return 'sunrise'; // Dawn (5-6 AM)
+      if (hour >= 6 && hour < 12) return 'morning'; // Morning (6 AM - 12 PM)
+      if (hour >= 12 && hour < 14) return 'noon'; // Noon (12-2 PM)
+      if (hour >= 14 && hour < 17) return 'afternoon'; // Afternoon (2-5 PM)
+      if (hour >= 17 && hour < 18.5) return 'evening'; // Evening (5 PM - 6:30 PM)
+      if (hour >= 18.5 && hour < 20) return 'sunset'; // Sunset (6:30 PM - 8 PM)
+      if (hour >= 20 && hour < 24) return 'night'; // Night (8 PM - 12 AM)
+      return 'mid-night'; // Late night (12-5 AM)
     };
 
     setTimeOfDay(getTimeOfDay());

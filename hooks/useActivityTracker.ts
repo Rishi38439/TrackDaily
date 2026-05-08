@@ -1,21 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Activity, Session } from '@/types/activity';
-import { generateSessionId, generateActivityId } from '@/lib/activityUtils';
-import { createSession } from '@/lib/sessionUtils';
+import { Activity } from '@/types/activity';
+import { generateActivityId } from '@/lib/activityUtils';
+import { useGuestSession } from './useGuestSession';
 
 const STORAGE_KEY = 'activities';
-const SESSION_KEY = 'session';
 
 export const useActivityTracker = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [session, setSession] = useState<Session | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { guestSession, isLoading: sessionLoading } = useGuestSession();
 
-  // Initialize session and load activities
+  // Initialize activities and create guest session if needed
   useEffect(() => {
-    const initializeSession = async () => {
+    const initializeActivities = () => {
       const storedActivities = localStorage.getItem(STORAGE_KEY);
-      const storedSession = localStorage.getItem(SESSION_KEY);
 
       if (storedActivities) {
         try {
@@ -25,27 +23,14 @@ export const useActivityTracker = () => {
         }
       }
 
-      if (storedSession) {
-        try {
-          setSession(JSON.parse(storedSession));
-        } catch {
-          console.error('Failed to parse session from localStorage');
-          const newSession = await createSession();
-          setSession(newSession);
-          localStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
-        }
-      } else {
-        const newSession = await createSession();
-        setSession(newSession);
-        localStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
-        console.log('New session created:', newSession.code);
-      }
-
       setIsLoaded(true);
     };
 
-    initializeSession();
-  }, []);
+    // Only initialize when guest session is ready
+    if (!sessionLoading && guestSession) {
+      initializeActivities();
+    }
+  }, [sessionLoading, guestSession]);
 
   // Save activities to localStorage whenever they change
   useEffect(() => {
@@ -61,8 +46,8 @@ export const useActivityTracker = () => {
       notes?: string,
       category?: string
     ) => {
-      if (!session) {
-        console.log('Session not initialized');
+      if (!guestSession) {
+        console.log('Guest session not initialized');
         return;
       }
 
@@ -74,7 +59,7 @@ export const useActivityTracker = () => {
 
       const newActivity: Activity = {
         id: generateActivityId(),
-        sessionId: session.id,
+        sessionId: guestSession.id,
         name,
         category: category || 'other',
         duration,
@@ -85,7 +70,7 @@ export const useActivityTracker = () => {
       setActivities((prev) => [newActivity, ...prev]);
       console.log('Activity added:', name, 'Duration:', duration, 'minutes');
     },
-    [session]
+    [guestSession]
   );
 
   const deleteActivity = useCallback((id: string) => {
@@ -122,9 +107,8 @@ export const useActivityTracker = () => {
 
   return {
     activities,
-    session,
-    sessionId: session?.id || '',
-    sessionCode: session?.code || '',
+    sessionId: guestSession?.id || '',
+    sessionCode: 'GUEST', // Always show GUEST as session code
     isLoaded,
     addActivity,
     deleteActivity,

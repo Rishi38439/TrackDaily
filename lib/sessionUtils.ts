@@ -29,9 +29,10 @@ export async function createSession() {
   // Store user info in MongoDB
   try {
     const logCode = generateLogCode();
-    await storeUserInfo(logCode, session.id);
+    await storeUserInfo(logCode, session.id, session.code);
     console.log('[v0] ✅ Successfully stored user info in MongoDB:');
     console.log('   - Log Code:', logCode);
+    console.log('   - Session Code:', session.code);
     console.log('   - Session ID:', session.id);
     console.log('   - Check MongoDB Compass for new document in user_info collection');
     return { ...session, logCode };

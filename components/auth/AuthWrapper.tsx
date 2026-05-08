@@ -1,18 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { LoginForm } from './LoginForm';
-import { RegisterForm } from './RegisterForm';
+import { useGuestSession } from '@/hooks/useGuestSession';
 import { Dashboard } from '@/components/Dashboard';
 import LiveGridPulseNetwork from '@/components/LiveGridPulseNetwork';
 import InfrastructureIntro from '@/components/InfrastructureIntro';
 import { useActivityTracker } from '@/hooks/useActivityTracker';
 
 export function AuthWrapper() {
-  const [currentView, setCurrentView] = useState<'login' | 'register'>('login');
   const [showIntro, setShowIntro] = useState(true);
-  const { isAuthenticated, isLoading } = useAuth();
+  const { guestSession, isLoading: sessionLoading } = useGuestSession();
   const {
     activities,
     sessionId,
@@ -23,7 +20,7 @@ export function AuthWrapper() {
   } = useActivityTracker();
 
   // Show loading state first (but only if intro is not showing)
-  if (isLoading && !showIntro) {
+  if (sessionLoading && !showIntro) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-white text-center">
@@ -39,7 +36,7 @@ export function AuthWrapper() {
     return <InfrastructureIntro onComplete={() => setShowIntro(false)} />;
   }
 
-  // Show main app directly (skip authentication)
+  // Show main app with guest session
   return (
     <div className="min-h-screen bg-black relative">
       {/* Live Grid Pulse Network */}

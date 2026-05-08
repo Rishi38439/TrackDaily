@@ -7,7 +7,7 @@ export function generateLogCode(): string {
 }
 
 // Store user info in the database
-export async function storeUserInfo(log_code: string, session_id: string): Promise<UserInfo> {
+export async function storeUserInfo(log_code: string, session_id: string, session_code: string): Promise<UserInfo> {
   try {
     const collection = await getUserInfoCollection();
     const now = new Date();
@@ -15,6 +15,7 @@ export async function storeUserInfo(log_code: string, session_id: string): Promi
     const userInfo: UserInfo = {
       log_code,
       session_id,
+      session_code,
       createdAT: now,
       UpdatedAt: now,
     };
@@ -91,6 +92,30 @@ export async function deleteUserInfo(log_code: string): Promise<boolean> {
   } catch (error) {
     console.error('Error deleting user info:', error);
     throw new Error('Failed to delete user information');
+  }
+}
+
+// Verify session using session_code and log_code
+export async function verifySession(session_code: string, log_code: string): Promise<UserInfo | null> {
+  try {
+    const collection = await getUserInfoCollection();
+    const userInfo = await collection.findOne({ session_code, log_code });
+    return userInfo;
+  } catch (error) {
+    console.error('Error verifying session:', error);
+    throw new Error('Failed to verify session');
+  }
+}
+
+// Get user info by session code
+export async function getUserInfoBySessionCode(session_code: string): Promise<UserInfo | null> {
+  try {
+    const collection = await getUserInfoCollection();
+    const userInfo = await collection.findOne({ session_code });
+    return userInfo;
+  } catch (error) {
+    console.error('Error fetching user info by session code:', error);
+    throw new Error('Failed to fetch user information');
   }
 }
 

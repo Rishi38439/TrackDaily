@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Session, AuthState, LoginCredentials, RegisterData } from '@/types/activity';
 import { createSession, validateSessionCode } from '@/lib/sessionUtils';
+import { getUserInfoBySessionCode, verifySession } from '@/lib/userServiceClient';
 
 const SESSION_KEY = 'session';
 const AUTH_KEY = 'auth_state';
@@ -55,24 +56,39 @@ export const useAuth = () => {
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      // For demo purposes, we'll create a new session if no session exists
-      // In a real app, you'd validate against a backend
-      const newSession = await createSession();
+      // First, try to find an existing session by session code
+      const existingSession = await getUserInfoBySessionCode(credentials.sessionCode);
       
-      // Validate the entered code against the generated session code
-      if (validateSessionCode(newSession.code, credentials.sessionCode)) {
+      if (existingSession) {
+        // Session exists, create a session object from the stored data
+        const session: Session = {
+          id: existingSession.session_id,
+          code: existingSession.session_code,
+          startDate: typeof existingSession.createdAT === 'string' 
+            ? new Date(existingSession.createdAT).getTime() 
+            : existingSession.createdAT.getTime(),
+          logCode: existingSession.log_code,
+        };
+        
         // Store session
-        localStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
+        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
         
         setAuthState({
           isAuthenticated: true,
-          session: newSession,
+          session,
           isLoading: false,
           error: null,
         });
         
+        console.log('✅ Login successful - existing session found:', {
+          sessionCode: session.code,
+          logCode: session.logCode,
+          sessionId: session.id
+        });
+        
         return true;
       } else {
+        // No existing session found
         setAuthState(prev => ({
           ...prev,
           isLoading: false,

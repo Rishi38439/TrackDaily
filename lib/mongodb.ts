@@ -2,8 +2,8 @@ import { MongoClient, Db, Collection, Document } from 'mongodb';
 import { UserInfo } from '@/types/activity';
 
 // MongoDB connection configuration
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
-const MONGODB_DB = process.env.MONGODB_DB || 'TrackDaily';
+const MONGODB_URI = 'mongodb://localhost:27017/';
+const MONGODB_DB = 'TrackDaily';
 
 let client: MongoClient | null = null;
 let db: Db | null = null;

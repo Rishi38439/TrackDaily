@@ -34,6 +34,7 @@ export interface UserInfo {
   _id?: string;
   log_code: string; // 5-digit unique code
   session_id: string;
+  session_code: string; // 5-character alphanumeric code
   createdAT: Date;
   UpdatedAt: Date;
 }

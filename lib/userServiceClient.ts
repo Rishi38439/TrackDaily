@@ -1,7 +1,7 @@
 import { UserInfo } from '@/types/activity';
 
 // Client-side user service using API calls
-export async function storeUserInfo(log_code: string, session_id: string): Promise<UserInfo> {
+export async function storeUserInfo(log_code: string, session_id: string, session_code: string): Promise<UserInfo> {
   try {
     const response = await fetch('/api/user-info', {
       method: 'POST',
@@ -12,6 +12,7 @@ export async function storeUserInfo(log_code: string, session_id: string): Promi
         action: 'store',
         log_code,
         session_id,
+        session_code,
       }),
     });
 
@@ -47,6 +48,22 @@ export async function getUserInfoByLogCode(log_code: string): Promise<UserInfo |
 export async function getUserInfoBySessionId(session_id: string): Promise<UserInfo | null> {
   try {
     const response = await fetch(`/api/user-info?session_id=${session_id}&action=by-session-id`);
+    const result = await response.json();
+    
+    if (result.success) {
+      return result.data;
+    } else {
+      throw new Error(result.error || 'Failed to fetch user information');
+    }
+  } catch (error) {
+    console.error('Error fetching user info via API:', error);
+    return null;
+  }
+}
+
+export async function getUserInfoBySessionCode(session_code: string): Promise<UserInfo | null> {
+  try {
+    const response = await fetch(`/api/user-info?session_code=${session_code}&action=by-session-code`);
     const result = await response.json();
     
     if (result.success) {
@@ -116,6 +133,34 @@ export async function getAllUsers(): Promise<UserInfo[]> {
   } catch (error) {
     console.error('Error fetching all users via API:', error);
     return [];
+  }
+}
+
+// Verify session using session_code and log_code
+export async function verifySession(session_code: string, log_code: string): Promise<UserInfo | null> {
+  try {
+    const response = await fetch('/api/user-info', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'verify',
+        session_code,
+        log_code,
+      }),
+    });
+
+    const result = await response.json();
+    
+    if (result.success) {
+      return result.data;
+    } else {
+      throw new Error(result.error || 'Failed to verify session');
+    }
+  } catch (error) {
+    console.error('Error verifying session via API:', error);
+    throw new Error('Failed to verify session');
   }
 }
 
