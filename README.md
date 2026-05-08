@@ -1,86 +1,59 @@
-# Personal TrackDaily
+# TrackDaily
 
-A fitness and wellness activity tracking application built with Next.js, React, and Tailwind CSS. Track your exercises, analyze trends, and maintain a comprehensive activity log with beautiful analytics.
+A modern activity tracking application that helps you monitor, analyze, and improve your daily activities. Built with Next.js and featuring real-time analytics, session management, and a beautiful dark-themed interface.
 
 ## Features
 
-### Core Functionality
-- **Activity Logging**: Log exercises with name, category, duration, calories, and notes
-- **7 Activity Categories**: Cardio, Strength, Flexibility, Sports, Outdoor, Mind & Wellness, Other
-- **Session Management**: Unique session IDs to track usage across browser sessions
-- **Data Persistence**: All activities automatically saved to browser localStorage
+### Activity Tracking
+- **Comprehensive Logging**: Track activities with names, categories, durations, and optional notes
+- **Session-Based Tracking**: Unique session management with guest access and authentication
+- **Real-time Updates**: Instant activity logging and immediate reflection in analytics
 
-### Analytics & Insights
-- **Summary Cards**: Quick stats including total activities, duration, calories, and averages
-- **Duration Trends**: 7-day line chart showing activity duration patterns
-- **Calorie Tracking**: 30-day bar chart of calories burned
-- **Category Breakdown**: Pie chart visualizing time spent in each activity category
+### Analytics & Visualization
+- **Interactive Charts**: Dynamic visualizations showing activity trends and patterns over time
+- **Statistical Insights**: Comprehensive metrics including total activities, duration averages, and frequency analysis
+- **Time-based Analysis**: View activities by weekly, monthly, or yearly time ranges
+- **Category Distribution**: Visual breakdown of time spent across different activity types
 
-### Activity Management
-- **Activity Table**: Browse all logged activities with timestamps and notes
-- **Quick Delete**: Remove individual activities with one click
-- **Export/Import**: Download activities as JSON and import from backup files
-- **Clear All**: Reset all activities with confirmation
+### User Experience
+- **Dark Theme Interface**: Modern dark mode design with smooth animations and transitions
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- **Intuitive Navigation**: Clean, organized interface with multiple view options
 
-### Design
-- **Dark Mode**: Dark theme with glassmorphism effects
-- **Responsive Layout**: Mobile-first design that scales to all screen sizes
-- **Real-time Updates**: Instant UI updates as you log activities
-- **Smooth Animations**: 300ms transitions for a polished feel
+### Data Management
+- **Activity History**: Complete log of all tracked activities with timestamps
+- **Import/Export**: Backup and restore your activity data
+- **Session Persistence**: Maintains your data across browser sessions
+- **Flexible Updates**: Edit and modify existing activities with ease
 
 ## Technology Stack
 
-- **Framework**: Next.js 16 (App Router)
-- **UI Components**: shadcn/ui
-- **Charts**: Recharts
-- **Styling**: Tailwind CSS v4
-- **Icons**: Lucide React
-- **Database**: Browser localStorage
-- **State Management**: React Hooks
-
-## Project Structure
-
-```
-├── app/
-│   ├── page.tsx              # Main application entry point
-│   ├── layout.tsx            # Root layout with metadata
-│   └── globals.css           # Global styles
-├── components/
-│   ├── Dashboard.tsx         # Main dashboard container
-│   ├── ActivityForm.tsx      # Form for logging activities
-│   ├── ActivityTable.tsx     # Table of logged activities
-│   ├── SummaryCards.tsx      # Statistics summary cards
-│   ├── ChartsPanel.tsx       # Analytics charts
-│   └── ui/                   # shadcn/ui components
-├── hooks/
-│   └── useActivityTracker.ts # Custom hook for activity management
-├── lib/
-│   └── activityUtils.ts      # Utility functions and calculations
-├── types/
-│   └── activity.ts           # TypeScript interfaces
-└── package.json              # Dependencies
-```
-
-## Data Model
-
-### Activity
-```typescript
-interface Activity {
-  id: string;                  // Unique identifier
-  sessionId: string;           // Session identifier
-  name: string;               // Activity name
-  category: string;           // Activity category
-  duration: number;           // Duration in minutes (0-1440)
-  timestamp: number;          // Creation timestamp (ms)
-  notes?: string;             // Optional notes
-}
-```
+- **Framework**: Next.js 16 with App Router for modern React development
+- **UI Library**: shadcn/ui components built on Radix UI primitives
+- **Styling**: Tailwind CSS v4 for responsive, utility-first styling
+- **Charts**: Recharts for interactive data visualizations
+- **Icons**: Lucide React for consistent, modern iconography
+- **Animations**: Framer Motion for smooth transitions and micro-interactions
+- **Forms**: React Hook Form with Zod validation
+- **State Management**: React Hooks and Context API
+- **Type Safety**: TypeScript for enhanced development experience
+- **Package Manager**: pnpm for efficient dependency management
 
 ## Getting Started
 
+### Prerequisites
+
+- Node.js 18+ and pnpm package manager
+- Modern web browser with JavaScript enabled
+
 ### Installation
 
-1. Clone the repository or download the project
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd TrackDaily
+```
+
 2. Install dependencies:
 ```bash
 pnpm install
@@ -93,73 +66,72 @@ pnpm dev
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-### Usage
+### Usage Guide
 
-1. **Logging an Activity**:
-   - Fill in the activity form with name, category, and duration (0-24 hours)
-   - Add optional notes
-   - Click "Log Activity"
+**First Time Setup**
+- The app will generate a unique guest session for you
+- Your session data persists across browser sessions
+- No registration required - start tracking immediately
 
-2. **Viewing Analytics**:
-   - Summary cards show key metrics at a glance
-   - Switch between chart tabs to view duration trends and category breakdown
+**Daily Activity Tracking**
+- Navigate to the activity logging section
+- Enter activity details including name, category, and duration
+- Add optional notes for context
+- Activities are instantly saved and reflected in your analytics
 
-3. **Managing Activities**:
-   - View all activities in the table below the charts
-   - Click the trash icon to delete individual activities
-   - Use export to download your data as JSON
+**Analytics & Insights**
+- View comprehensive statistics on your dashboard
+- Explore interactive charts showing trends over time
+- Filter data by different time ranges (weekly, monthly, yearly)
+- Analyze category distribution to understand your activity patterns
 
-4. **Backing Up Data**:
-   - Click "Export" to download activities as a JSON file
-   - Click "Import" to restore from a backup JSON file
-   - Use "Clear All" to delete all activities (with confirmation)
+**Data Management**
+- Export your complete activity history as JSON
+- Import previous backups to restore data
+- Edit existing activities to correct mistakes
+- Clear all data when needed with confirmation
 
-## Local Storage
+## Browser Support
 
-Activities are stored in the browser's localStorage with the key `activities`. The session ID is stored with the key `sessionId`. Clearing browser data will delete your activity history.
-
-## Export Format
-
-Exported activities are stored as JSON in the following format:
-```json
-[
-  {
-    "id": "uuid",
-    "sessionId": "uuid",
-    "name": "Morning Run",
-    "category": "cardio",
-    "duration": 30,
-    "timestamp": 1704067200000,
-    "notes": "Great weather today"
-  }
-]
-```
-
-## Browser Compatibility
-
+TrackDaily works on all modern browsers that support:
 - Chrome/Edge 90+
 - Firefox 88+
 - Safari 14+
-- Mobile browsers with localStorage support
+- Mobile browsers with localStorage and ES6+ support
 
-## Color Scheme
+## Data Storage
 
-- **Primary**: Blue (#3b82f6) - Used for duration metrics
-- **Secondary**: Purple (#8b5cf6) - Used in gradients
-- **Accent**: Orange (#f59e0b) - Used for calories
-- **Success**: Green (#10b981) - Used for outdoor activities
-- **Background**: Dark slate (#0f172a to #1e293b) - Dark theme
+Your activity data is stored locally in your browser for privacy and instant access. Session information and activity logs are maintained across browser sessions, ensuring your tracking history is always available.
 
-## Future Enhancements
+## Development
 
-- Cloud synchronization across devices
-- Social sharing of achievements
-- Goal setting and progress tracking
-- Custom category creation
-- Advanced filtering and sorting
-- Mobile app version
-- Wearable device integration
+### Build for Production
+```bash
+pnpm build
+```
+
+### Start Production Server
+```bash
+pnpm start
+```
+
+### Lint Code
+```bash
+pnpm lint
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
 ## License
 
-Created with v0.app
+This project is open source and available under the MIT License.
+
+---
+
+Built with modern web technologies to provide a seamless activity tracking experience.
