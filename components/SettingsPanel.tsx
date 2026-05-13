@@ -28,7 +28,7 @@ interface SettingsPanelProps {
 export function SettingsPanel({ onLogout, onLoginClick }: SettingsPanelProps) {
   const [copied, setCopied] = useState<'code' | 'id' | null>(null);
   const [showId, setShowId] = useState(false);
-  const { session, logout, isLoading, login } = useAuth();
+  const { session, logout, isLoading, isAuthenticated } = useAuth();
 
   const copyToClipboard = async (text: string, type: 'code' | 'id') => {
     try {
@@ -57,7 +57,8 @@ export function SettingsPanel({ onLogout, onLoginClick }: SettingsPanelProps) {
     });
   };
 
-  if (!session) {
+  // Show login/register UI when not authenticated even if a session object exists
+  if (!isAuthenticated) {
     return (
       <Card className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-md">
         <CardHeader>
@@ -161,48 +162,26 @@ export function SettingsPanel({ onLogout, onLoginClick }: SettingsPanelProps) {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <p className="text-xs text-white/50 mb-1">Session Code</p>
-                  <p className="text-lg font-mono font-bold text-white">{session.code}</p>
+                  <p className="text-lg font-mono font-bold text-white">{session?.code ?? ''}</p>
                 </div>
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => copyToClipboard(session.code, 'code')}
+                  onClick={() => session?.code && copyToClipboard(session.code, 'code')}
                   className="text-white/50 hover:text-white hover:bg-white/10"
+                  disabled={!session?.code}
                 >
                   {copied === 'code' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 </Button>
               </div>
             </div>
 
-            {/* Session ID */}
+            {/* Session ID removed as requested */
+            /*
             <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-xs text-white/50 mb-1">Session ID</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-mono text-white/80 truncate">
-                      {showId ? session.id : '••••••••-••••-••••-•••••••••••••'}
-                    </p>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setShowId(!showId)}
-                      className="h-6 w-6 text-white/50 hover:text-white hover:bg-white/10 p-0"
-                    >
-                      {showId ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                    </Button>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => copyToClipboard(session.id, 'id')}
-                  className="text-white/50 hover:text-white hover:bg-white/10"
-                >
-                  {copied === 'id' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              </div>
+              ...existing code...
             </div>
+            */}
 
             {/* Session Start Date */}
             <div className="bg-white/5 rounded-lg p-3 border border-white/10">

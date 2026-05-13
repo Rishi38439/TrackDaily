@@ -1,4 +1,4 @@
-import { Activity, ActivityStats, ChartData, Session } from '@/types/activity';
+import { Activity, ActivityStats, ChartData } from '@/types/activity';
 import { v4 as uuidv4 } from 'uuid';
 
 export const generateSessionId = (): string => uuidv4();

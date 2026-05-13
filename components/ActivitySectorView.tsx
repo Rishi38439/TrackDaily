@@ -13,9 +13,6 @@ interface ActivitySectorViewProps {
 export function ActivitySectorView({ activities, onDeleteActivity }: ActivitySectorViewProps) {
   const [hoveredActivityName, setHoveredActivityName] = useState<string | null>(null);
 
-  // Get unique activity names
-  const uniqueActivities = Array.from(new Set(activities.map(a => a.name)));
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
       {/* Activities List */}

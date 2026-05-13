@@ -95,7 +95,6 @@ export function AnimatedCounter({
 
   useEffect(() => {
     const startTime = Date.now();
-    const endTime = startTime + duration;
 
     const animate = () => {
       const now = Date.now();

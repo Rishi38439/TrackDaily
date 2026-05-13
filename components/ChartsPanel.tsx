@@ -44,7 +44,6 @@ export function ChartsPanel({ activities }: ChartsPanelProps) {
   }
 
   const weekData = getChartData(activities, 7);
-  const monthData = getChartData(activities, 30);
 
   // Calculate category breakdown
   const categoryData = Object.entries(

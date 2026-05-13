@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Calendar,
@@ -30,7 +30,7 @@ export function ActivityHistory({ activities, onDeleteActivity }: ActivityHistor
 
   // Filter and sort activities
   const filteredActivities = useMemo(() => {
-    let filtered = activities.filter(activity => {
+    const filtered = activities.filter(activity => {
       const matchesSearch = activity.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           (activity.notes && activity.notes.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesSearch;
@@ -52,23 +52,6 @@ export function ActivityHistory({ activities, onDeleteActivity }: ActivityHistor
 
     return filtered;
   }, [activities, searchQuery, sortBy, sortOrder]);
-
-  const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return 'Today';
-    } else if (diffDays === 1) {
-      return 'Yesterday';
-    } else if (diffDays < 7) {
-      return date.toLocaleDateString('en-US', { weekday: 'long' });
-    } else {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-  };
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);

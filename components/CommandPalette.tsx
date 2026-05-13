@@ -11,10 +11,7 @@ import {
   History,
   Download,
   Settings,
-  Calendar,
   Target,
-  Flame,
-  Clock,
   X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';

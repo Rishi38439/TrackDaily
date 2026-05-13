@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { CommandPalette } from './CommandPalette';
 import { 
@@ -14,7 +15,6 @@ import {
   Menu, 
   X,
   Flame,
-  Target,
   Clock,
   Search
 } from 'lucide-react';
@@ -45,6 +45,7 @@ export function Layout({
   activities,
   onQuickAdd 
 }: LayoutProps) {
+  const { isAuthenticated } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
 
@@ -69,7 +70,6 @@ export function Layout({
   });
 
   const todayDuration = todayStats.reduce((acc, activity) => acc + activity.duration, 0);
-  const todayCalories = todayStats.reduce((acc, activity) => acc + activity.calories, 0);
 
   return (
     <div className="min-h-screen bg-black">
@@ -142,8 +142,17 @@ export function Layout({
             {sidebarOpen && (
               <div className="p-4 border-t border-white/5">
                 <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-xl p-4 border border-white/10">
-                  <p className="text-xs text-white/50 mb-1">Session Code</p>
-                  <p className="text-sm font-mono text-white/80">{sessionCode}</p>
+                  <p className="text-xs text-white/50 mb-1">Session</p>
+                  {isAuthenticated ? (
+                    <p className="text-sm font-mono text-white/80">{sessionCode}</p>
+                  ) : (
+                    <button
+                      onClick={() => onViewChange('settings')}
+                      className="text-sm text-white/80 text-left w-full"
+                    >
+                      Login / Create Session
+                    </button>
+                  )}
                 </div>
               </div>
             )}

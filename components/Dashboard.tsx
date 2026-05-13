@@ -15,8 +15,9 @@ import { DurationTrend } from './DurationTrend';
 import { SettingsPanel } from './SettingsPanel';
 import { LoginForm } from './auth/LoginForm';
 import { RegisterForm } from './auth/RegisterForm';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
-import { Download, Upload, Settings } from 'lucide-react';
+import { Download, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type ViewType = 'dashboard' | 'log-activity' | 'analytics' | 'history' | 'import-export' | 'settings';
@@ -35,12 +36,13 @@ interface DashboardProps {
 
 export function Dashboard({
   activities,
-  sessionId,
+  sessionId: _sessionId,
   sessionCode,
   onAddActivity,
   onDeleteActivity,
   onUpdateActivity,
 }: DashboardProps) {
+  const { session, isAuthenticated } = useAuth();
   // Wrapper function to convert duration-only update to Partial<Activity>
   const handleUpdateActivityDuration = (id: string, duration: number) => {
     onUpdateActivity(id, { duration });
@@ -210,12 +212,15 @@ export function Dashboard({
     }
   };
 
+  // Prefer authenticated session code if available
+  const displaySessionCode = isAuthenticated && session?.code ? session.code : sessionCode;
+
   return (
     <>
       <Layout
         currentView={currentView}
         onViewChange={(view) => setCurrentView(view as ViewType)}
-        sessionCode={sessionCode}
+        sessionCode={displaySessionCode}
         activities={activities}
         onQuickAdd={handleQuickAdd}
       >
@@ -231,7 +236,7 @@ export function Dashboard({
 
       {/* Session Manager Dialog */}
       <SessionManager
-        sessionCode={sessionCode}
+        sessionCode={displaySessionCode}
         isOpen={showSessionManager}
         onOpenChange={setShowSessionManager}
       />

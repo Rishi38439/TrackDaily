@@ -1,12 +1,23 @@
-import { useState, useEffect, useCallback } from 'react';
+"use client";
+
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Session, AuthState, LoginCredentials, RegisterData } from '@/types/activity';
-import { createSession, validateSessionCode } from '@/lib/sessionUtils';
-import { getUserInfoBySessionCode, verifySession } from '@/lib/userServiceClient';
+import { createSession } from '@/lib/sessionUtils';
+import { getUserInfoBySessionCode } from '@/lib/userServiceClient';
 
 const SESSION_KEY = 'session';
 const AUTH_KEY = 'auth_state';
 
-export const useAuth = () => {
+type AuthContextValue = AuthState & {
+  login: (credentials: LoginCredentials) => Promise<boolean>;
+  register: () => Promise<RegisterData | null>;
+  logout: () => void;
+  clearError: () => void;
+};
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
     session: null,
@@ -21,15 +32,38 @@ export const useAuth = () => {
         const storedSession = localStorage.getItem(SESSION_KEY);
         const storedAuthState = localStorage.getItem(AUTH_KEY);
 
-        if (storedSession && storedAuthState) {
+        // If a session object exists in localStorage treat the user as authenticated
+        if (storedSession) {
           const session = JSON.parse(storedSession);
-          const authState = JSON.parse(storedAuthState);
-          
+          let authStatePartial: any = { isAuthenticated: true, error: null };
+
+          if (storedAuthState) {
+            try {
+              const parsed = JSON.parse(storedAuthState);
+              authStatePartial = { ...authStatePartial, ...parsed };
+            } catch (e) {
+              // ignore
+            }
+          }
+
           setAuthState({
-            ...authState,
+            isAuthenticated: Boolean(authStatePartial.isAuthenticated),
             session,
             isLoading: false,
+            error: authStatePartial.error ?? null,
           });
+        } else if (storedAuthState) {
+          try {
+            const parsed = JSON.parse(storedAuthState);
+            setAuthState({
+              isAuthenticated: Boolean(parsed.isAuthenticated),
+              session: null,
+              isLoading: false,
+              error: parsed.error ?? null,
+            });
+          } catch (e) {
+            setAuthState(prev => ({ ...prev, isLoading: false }));
+          }
         } else {
           setAuthState(prev => ({ ...prev, isLoading: false }));
         }
@@ -56,53 +90,38 @@ export const useAuth = () => {
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      // First, try to find an existing session by session code
       const existingSession = await getUserInfoBySessionCode(credentials.sessionCode);
-      
+
       if (existingSession) {
-        // Session exists, create a session object from the stored data
         const session: Session = {
           id: existingSession.session_id,
           code: existingSession.session_code,
-          startDate: typeof existingSession.createdAT === 'string' 
-            ? new Date(existingSession.createdAT).getTime() 
+          startDate: typeof existingSession.createdAT === 'string'
+            ? new Date(existingSession.createdAT).getTime()
             : existingSession.createdAT.getTime(),
           logCode: existingSession.log_code,
         };
-        
-        // Store session
+
         localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-        
+
         setAuthState({
           isAuthenticated: true,
           session,
           isLoading: false,
           error: null,
         });
-        
-        console.log('✅ Login successful - existing session found:', {
-          sessionCode: session.code,
-          logCode: session.logCode,
-          sessionId: session.id
-        });
-        
+
+        // notify other hooks/components relying on localStorage if needed
+        window.dispatchEvent(new Event('storage'));
+
         return true;
       } else {
-        // No existing session found
-        setAuthState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: 'Invalid session code. Please check and try again.',
-        }));
+        setAuthState(prev => ({ ...prev, isLoading: false, error: 'Invalid session code. Please check and try again.' }));
         return false;
       }
     } catch (error) {
       console.error('Login failed:', error);
-      setAuthState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: 'Login failed. Please try again.',
-      }));
+      setAuthState(prev => ({ ...prev, isLoading: false, error: 'Login failed. Please try again.' }));
       return false;
     }
   }, []);
@@ -112,16 +131,17 @@ export const useAuth = () => {
 
     try {
       const newSession = await createSession();
-      
-      // Store session
+
       localStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
-      
+
       setAuthState({
         isAuthenticated: true,
         session: newSession,
         isLoading: false,
         error: null,
       });
+
+      window.dispatchEvent(new Event('storage'));
 
       return {
         sessionId: newSession.id,
@@ -130,38 +150,47 @@ export const useAuth = () => {
       };
     } catch (error) {
       console.error('Registration failed:', error);
-      setAuthState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: 'Registration failed. Please try again.',
-      }));
+      setAuthState(prev => ({ ...prev, isLoading: false, error: 'Registration failed. Please try again.' }));
       return null;
     }
   }, []);
 
   const logout = useCallback(() => {
-    // Clear stored data
     localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem(AUTH_KEY);
-    localStorage.removeItem('activities'); // Also clear activities on logout
-    
+    localStorage.removeItem('activities');
+
     setAuthState({
       isAuthenticated: false,
       session: null,
       isLoading: false,
       error: null,
     });
+
+    window.dispatchEvent(new Event('storage'));
   }, []);
 
   const clearError = useCallback(() => {
     setAuthState(prev => ({ ...prev, error: null }));
   }, []);
 
-  return {
+  const value: AuthContextValue = {
     ...authState,
     login,
     register,
     logout,
     clearError,
   };
+
+  return React.createElement(AuthContext.Provider, { value }, children);
 };
+
+export const useAuth = (): AuthContextValue => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return ctx;
+};
+
+export default useAuth;

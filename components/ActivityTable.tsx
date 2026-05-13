@@ -5,7 +5,7 @@ import { formatDuration, getCategoryIcon } from '@/lib/activityUtils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
-import { Empty } from '@/components/ui/empty';
+import { Empty, EmptyContent, EmptyTitle, EmptyDescription } from '@/components/ui/empty';
 
 interface ActivityTableProps {
   activities: Activity[];
@@ -21,11 +21,12 @@ export function ActivityTable({ activities, onDelete }: ActivityTableProps) {
           <CardDescription>Your logged activities will appear here</CardDescription>
         </CardHeader>
         <CardContent>
-          <Empty
-            icon="📭"
-            title="No activities logged yet"
-            description="Start tracking your activities by filling out the form above"
-          />
+          <Empty>
+            <EmptyContent>
+              <EmptyTitle>No activities logged yet</EmptyTitle>
+              <EmptyDescription>Start tracking your activities by filling out the form above</EmptyDescription>
+            </EmptyContent>
+          </Empty>
         </CardContent>
       </Card>
     );

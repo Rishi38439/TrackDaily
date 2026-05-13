@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Activity } from '@/types/activity';
 import { generateActivityId } from '@/lib/activityUtils';
 import { useGuestSession } from './useGuestSession';
+import { useAuth } from '@/hooks/useAuth';
 
 const STORAGE_KEY = 'activities';
 
@@ -9,6 +10,7 @@ export const useActivityTracker = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const { guestSession, isLoading: sessionLoading } = useGuestSession();
+  const { session, isAuthenticated } = useAuth ? useAuth() : { session: null, isAuthenticated: false };
 
   // Initialize activities and create guest session if needed
   useEffect(() => {
@@ -40,14 +42,15 @@ export const useActivityTracker = () => {
   }, [activities, isLoaded]);
 
   const addActivity = useCallback(
-    (
+    async (
       name: string,
       duration: number,
       notes?: string,
       category?: string
     ) => {
-      if (!guestSession) {
-        console.log('Guest session not initialized');
+      const userLogCode = isAuthenticated && session?.logCode ? session.logCode : guestSession?.id;
+      if (!userLogCode) {
+        console.log('No log code or guest session available');
         return;
       }
 
@@ -59,7 +62,7 @@ export const useActivityTracker = () => {
 
       const newActivity: Activity = {
         id: generateActivityId(),
-        sessionId: guestSession.id,
+        sessionId: userLogCode,
         name,
         category: category || 'other',
         duration,
@@ -69,8 +72,23 @@ export const useActivityTracker = () => {
 
       setActivities((prev) => [newActivity, ...prev]);
       console.log('Activity added:', name, 'Duration:', duration, 'minutes');
+
+      // Call backend to log activity in MongoDB
+      try {
+        await fetch('/api/activity-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            activityName: name,
+            log_code: userLogCode,
+            activity_time: duration,
+          }),
+        });
+      } catch (err) {
+        console.error('Failed to log activity in MongoDB:', err);
+      }
     },
-    [guestSession]
+    [guestSession, session, isAuthenticated]
   );
 
   const deleteActivity = useCallback((id: string) => {

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Send, Plus, Minus, Search, Trash2 } from 'lucide-react';
-import { formatDuration, getCategoryIcon } from '@/lib/activityUtils';
+import { getCategoryIcon } from '@/lib/activityUtils';
 
 interface ActivityInputProps {
   activities: Activity[];

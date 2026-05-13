@@ -120,6 +120,20 @@ pnpm start
 pnpm lint
 ```
 
+### Type Check
+```bash
+pnpm typecheck
+```
+
+### Bundle Analysis
+```bash
+pnpm analyze:bundle
+```
+
+### Route Profiling
+- API responses include `Server-Timing` and `X-Route-Duration-Ms` headers for route-level timing.
+- Current instrumentation is enabled on `/api/user-info` (`GET` and `POST`).
+
 ## Contributing
 
 1. Fork the repository

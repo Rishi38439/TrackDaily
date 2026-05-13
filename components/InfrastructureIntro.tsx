@@ -70,22 +70,24 @@ const skyGradients: Record<TimeOfDay, SkyGradient> = {
 export default function InfrastructureIntro({ onComplete }: InfrastructureIntroProps) {
   const [subtitleOpacity, setSubtitleOpacity] = useState(0);
   const [titleOpacity, setTitleOpacity] = useState(0);
-  const [backgroundProgress, setBackgroundProgress] = useState(0);
-  const [ambientIntensity, setAmbientIntensity] = useState(0);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('morning');
+  const [isFadingOut, setIsFadingOut] = useState(false);
 
   // Detect time of day
   useEffect(() => {
     const getTimeOfDay = (): TimeOfDay => {
-      const hour = new Date().getHours();
+      const now = new Date();
+      const hour = now.getHours();
+      const minute = now.getMinutes();
+      const timeInHours = hour + minute / 60;
       
-      if (hour >= 5 && hour < 6) return 'sunrise'; // Dawn (5-6 AM)
-      if (hour >= 6 && hour < 12) return 'morning'; // Morning (6 AM - 12 PM)
-      if (hour >= 12 && hour < 14) return 'noon'; // Noon (12-2 PM)
-      if (hour >= 14 && hour < 17) return 'afternoon'; // Afternoon (2-5 PM)
-      if (hour >= 17 && hour < 18.5) return 'evening'; // Evening (5 PM - 6:30 PM)
-      if (hour >= 18.5 && hour < 20) return 'sunset'; // Sunset (6:30 PM - 8 PM)
-      if (hour >= 20 && hour < 24) return 'night'; // Night (8 PM - 12 AM)
+      if (timeInHours >= 5 && timeInHours < 6) return 'sunrise'; // Dawn (5-6 AM)
+      if (timeInHours >= 6 && timeInHours < 12) return 'morning'; // Morning (6 AM - 12 PM)
+      if (timeInHours >= 12 && timeInHours < 14) return 'noon'; // Noon (12-2 PM)
+      if (timeInHours >= 14 && timeInHours < 17) return 'afternoon'; // Afternoon (2-5 PM)
+      if (timeInHours >= 17 && timeInHours < 18.5) return 'evening'; // Evening (5-6:30 PM)
+      if (timeInHours >= 18.5 && timeInHours < 20) return 'sunset'; // Sunset (6:30-8 PM)
+      if (timeInHours >= 20 && timeInHours < 24) return 'night'; // Night (8 PM - 12 AM)
       return 'mid-night'; // Late night (12-5 AM)
     };
 
@@ -94,47 +96,54 @@ export default function InfrastructureIntro({ onComplete }: InfrastructureIntroP
 
   useEffect(() => {
     const startTime = Date.now();
+    let animationId: number;
     
     const animate = () => {
       const elapsed = Date.now() - startTime;
       
-      // Phase 1: Background transition (0-3 seconds)
-      if (elapsed < 3000) {
-        setBackgroundProgress(elapsed / 3000);
+      // Phase 1: Background transition (0-2 seconds)
+      if (elapsed < 2000) {
+        // Kept for animation timing continuity.
       }
       
-      // Phase 2: Subtitle appears (2-4 seconds)
-      if (elapsed > 2000 && elapsed < 4000) {
-        setSubtitleOpacity((elapsed - 2000) / 2000);
-      } else if (elapsed >= 4000) {
+      // Phase 2: Subtitle appears (1.5-2.5 seconds)
+      if (elapsed > 1500 && elapsed < 2500) {
+        setSubtitleOpacity((elapsed - 1500) / 1000);
+      } else if (elapsed >= 2500) {
         setSubtitleOpacity(0.7);
       }
       
-      // Phase 3: Title appears (4-6 seconds)
-      if (elapsed > 4000 && elapsed < 6000) {
-        setTitleOpacity((elapsed - 4000) / 2000);
-      } else if (elapsed >= 6000) {
+      // Phase 3: Title appears (2.5-4.5 seconds)
+      if (elapsed > 2500 && elapsed < 4500) {
+        setTitleOpacity((elapsed - 2500) / 2000);
+      } else if (elapsed >= 4500) {
         setTitleOpacity(1);
       }
       
-      // Phase 4: Ambient breathing (continuous after 3 seconds)
-      if (elapsed > 3000) {
-        setAmbientIntensity(0.3 + Math.sin((elapsed - 3000) / 2000) * 0.1);
+      // Phase 4: Ambient breathing (only during active period, not continuous)
+      if (elapsed > 2000 && elapsed < 5500) {
+        // Kept for animation timing continuity.
       }
       
-      // Complete animation after 9 seconds
-      if (elapsed > 9000) {
+      // Complete animation after 5.5 seconds (allow title to be fully visible)
+      if (elapsed > 5500 && !isFadingOut) {
+        setIsFadingOut(true);
         onComplete?.();
         return;
       }
       
-      requestAnimationFrame(animate);
+      // Stop animation loop after completion + fade
+      if (elapsed < 7000) {
+        animationId = requestAnimationFrame(animate);
+      }
     };
     
-    const animationId = requestAnimationFrame(animate);
+    animationId = requestAnimationFrame(animate);
     
     return () => {
-      cancelAnimationFrame(animationId);
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
     };
   }, [onComplete]);
 
@@ -161,11 +170,21 @@ export default function InfrastructureIntro({ onComplete }: InfrastructureIntroP
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 1.5, ease: "easeInOut" }}
+        initial={{ opacity: 1, scale: 1 }}
+        animate={{ 
+          opacity: isFadingOut ? 0 : 1,
+          scale: isFadingOut ? 1.3 : 1
+        }}
+        exit={{ opacity: 0, scale: 1.3 }}
+        transition={{ 
+          duration: 1.5, 
+          ease: [0.4, 0, 0.2, 1] // Custom cubic bezier for smooth easing
+        }}
         className="fixed inset-0 z-50 overflow-hidden"
-        style={backgroundStyle}
+        style={{
+          ...backgroundStyle,
+          transformOrigin: 'center center'
+        }}
       >
         {/* Ambient atmospheric overlay */}
         <div 
@@ -185,17 +204,18 @@ export default function InfrastructureIntro({ onComplete }: InfrastructureIntroP
           }}
         />
         
-        {/* Subtle moving haze */}
+        {/* Subtle moving haze - optimized */}
         <motion.div
           className="absolute inset-0 pointer-events-none"
           animate={{
-            x: [0, 20, 0, -20, 0],
-            y: [0, -10, 0, 10, 0],
+            x: [0, 10, 0, -10, 0],
+            y: [0, -5, 0, 5, 0],
           }}
           transition={{
-            duration: 20,
+            duration: 25,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut",
+            type: "tween"
           }}
           style={{
             background: `radial-gradient(
@@ -203,7 +223,7 @@ export default function InfrastructureIntro({ onComplete }: InfrastructureIntroP
               ${currentSky.ambient} 0%,
               transparent 60%
             )`,
-            filter: 'blur(60px)',
+            filter: 'blur(50px)',
           }}
         />
         

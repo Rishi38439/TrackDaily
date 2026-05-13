@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useRef, useCallback, useState } from 'react'
-import { motion } from 'framer-motion'
 
 interface Node {
   x: number

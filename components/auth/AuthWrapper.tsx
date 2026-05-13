@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGuestSession } from '@/hooks/useGuestSession';
 import { Dashboard } from '@/components/Dashboard';
 import LiveGridPulseNetwork from '@/components/LiveGridPulseNetwork';
@@ -8,8 +8,23 @@ import InfrastructureIntro from '@/components/InfrastructureIntro';
 import { useActivityTracker } from '@/hooks/useActivityTracker';
 
 export function AuthWrapper() {
-  const [showIntro, setShowIntro] = useState(true);
-  const { guestSession, isLoading: sessionLoading } = useGuestSession();
+  const [showIntro, setShowIntro] = useState(true); // Always start with intro on server-side
+
+  useEffect(() => {
+    // Check if intro has already been played in this browser session
+    const hasSeenIntro = sessionStorage.getItem('trackdaily_intro_seen');
+    if (hasSeenIntro) {
+      setShowIntro(false);
+    }
+  }, []);
+
+  const handleIntroComplete = () => {
+    // Mark intro as seen for this browser session
+    sessionStorage.setItem('trackdaily_intro_seen', 'true');
+    // Delay hiding intro to allow smooth fade out
+    setTimeout(() => setShowIntro(false), 1500);
+  };
+  useGuestSession();
   const {
     activities,
     sessionId,
@@ -19,21 +34,13 @@ export function AuthWrapper() {
     updateActivity,
   } = useActivityTracker();
 
-  // Show loading state first (but only if intro is not showing)
-  if (sessionLoading && !showIntro) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-center">
-          <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   // Show intro animation first
   if (showIntro) {
-    return <InfrastructureIntro onComplete={() => setShowIntro(false)} />;
+    return (
+      <div suppressHydrationWarning>
+        <InfrastructureIntro onComplete={handleIntroComplete} />
+      </div>
+    );
   }
 
   // Show main app with guest session

@@ -4,14 +4,12 @@ import { useState, useMemo } from 'react';
 import { Activity } from '@/types/activity';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   TrendingUp, 
   TrendingDown, 
   Calendar,
   Trophy,
-  Target,
-  Flame,
   Clock,
   Activity as ActivityIcon,
   Award,
@@ -19,7 +17,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ActivityLineGraph } from './ActivityLineGraph';
-import { ActivitySectorView } from './ActivitySectorView';
 import { ActivityInput } from './ActivityInput';
 
 interface AnalyticsProps {
@@ -149,7 +146,6 @@ export function Analytics({ activities, onAddActivity }: AnalyticsProps) {
       color: 'from-blue-500/20 to-cyan-500/20',
       accent: 'text-blue-400'
     },
-    ,
     {
       title: 'Current Streak',
       value: '7 days', // This would be calculated from actual data
@@ -204,7 +200,7 @@ export function Analytics({ activities, onAddActivity }: AnalyticsProps) {
 
       {/* Insight Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {insightCards.map((card, index) => {
+        {insightCards.map((card) => {
           const Icon = card.icon;
           return (
             <Card

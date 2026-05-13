@@ -1,6 +1,6 @@
 'use client';
 
-import { Activity, ActivityStats } from '@/types/activity';
+import { Activity } from '@/types/activity';
 import { calculateStats, formatDuration } from '@/lib/activityUtils';
 import { Card, CardContent } from '@/components/ui/card';
 import { TrendingUp, Clock, Target } from 'lucide-react';
