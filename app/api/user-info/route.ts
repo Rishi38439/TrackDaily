@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { storeUserInfo, getUserInfoByLogCode, getUserInfoBySessionId, updateUserSession, deleteUserInfo, getAllUsers, verifySession, getUserInfoBySessionCode } from '@/lib/userService';
+import { storeUserInfo, getUserInfoByLogCode, getUserInfoBySessionId, updateUserSession, deleteUserInfo, getAllUsers, verifySession, getUserInfoBySessionCodeAndMobile } from '@/lib/userService';
 import { withRouteTiming } from '@/lib/routeTiming';
 
 export async function POST(request: NextRequest) {
-  const { action, log_code, session_id, session_code } = await request.json();
+  const { action, log_code, session_id, session_code, mobileNo } = await request.json();
 
   return withRouteTiming(
     'api/user-info:POST',
@@ -11,10 +11,10 @@ export async function POST(request: NextRequest) {
       try {
         switch (action) {
           case 'store': {
-            if (!log_code || !session_id || !session_code) {
-              return NextResponse.json({ error: 'log_code, session_id, and session_code are required' }, { status: 400 });
+            if (!log_code || !session_id || !session_code || !mobileNo) {
+              return NextResponse.json({ error: 'log_code, session_id, session_code, and mobileNo are required' }, { status: 400 });
             }
-            const storeResult = await storeUserInfo(log_code, session_id, session_code);
+            const storeResult = await storeUserInfo(log_code, session_id, session_code, mobileNo);
             return NextResponse.json({ success: true, data: storeResult });
           }
 
@@ -88,11 +88,12 @@ export async function GET(request: NextRequest) {
           }
 
           case 'by-session-code': {
-            if (!session_code) {
-              return NextResponse.json({ error: 'session_code is required' }, { status: 400 });
+            const mobileNo = searchParams.get('mobileNo');
+            if (!session_code || !mobileNo) {
+              return NextResponse.json({ error: 'session_code and mobileNo are required' }, { status: 400 });
             }
-            const userBySessionCode = await getUserInfoBySessionCode(session_code);
-            return NextResponse.json({ success: true, data: userBySessionCode });
+            const userBySessionCodeAndMobile = await getUserInfoBySessionCodeAndMobile(session_code, mobileNo);
+            return NextResponse.json({ success: true, data: userBySessionCodeAndMobile });
           }
 
           default:

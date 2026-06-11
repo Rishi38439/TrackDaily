@@ -18,7 +18,7 @@ export function generateSessionCode(): string {
 /**
  * Create a new session object with unique code and store in MongoDB
  */
-export async function createSession() {
+export async function createSession(mobileNo?: string) {
   const session = {
     id: uuidv4(),
     code: generateSessionCode(),
@@ -29,7 +29,7 @@ export async function createSession() {
   // Store user info in MongoDB
   try {
     const logCode = generateLogCode();
-    await storeUserInfo(logCode, session.id, session.code);
+    await storeUserInfo(logCode, session.id, session.code, mobileNo);
     console.log('[v0] ✅ Successfully stored user info in MongoDB:');
     console.log('   - Log Code:', logCode);
     console.log('   - Session Code:', session.code);

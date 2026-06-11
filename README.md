@@ -5,7 +5,7 @@ A modern activity tracking application that helps you monitor, analyze, and impr
 ## Features
 
 ### Activity Tracking
-- **Comprehensive Logging**: Track activities with names, categories, durations, and optional notes
+- **Comprehensive Logging**: Track activities with names, durations, timestamps, and optional notes
 - **Session-Based Tracking**: Unique session management with guest access and authentication
 - **Real-time Updates**: Instant activity logging and immediate reflection in analytics
 
@@ -13,7 +13,6 @@ A modern activity tracking application that helps you monitor, analyze, and impr
 - **Interactive Charts**: Dynamic visualizations showing activity trends and patterns over time
 - **Statistical Insights**: Comprehensive metrics including total activities, duration averages, and frequency analysis
 - **Time-based Analysis**: View activities by weekly, monthly, or yearly time ranges
-- **Category Distribution**: Visual breakdown of time spent across different activity types
 
 ### User Experience
 - **Dark Theme Interface**: Modern dark mode design with smooth animations and transitions
@@ -22,7 +21,7 @@ A modern activity tracking application that helps you monitor, analyze, and impr
 
 ### Data Management
 - **Activity History**: Complete log of all tracked activities with timestamps
-- **Import/Export**: Backup and restore your activity data
+- **Data Management**: Import and export your activity data from Settings
 - **Session Persistence**: Maintains your data across browser sessions
 - **Flexible Updates**: Edit and modify existing activities with ease
 
@@ -75,7 +74,7 @@ pnpm dev
 
 **Daily Activity Tracking**
 - Navigate to the activity logging section
-- Enter activity details including name, category, and duration
+- Enter activity details including name and duration
 - Add optional notes for context
 - Activities are instantly saved and reflected in your analytics
 
@@ -83,7 +82,6 @@ pnpm dev
 - View comprehensive statistics on your dashboard
 - Explore interactive charts showing trends over time
 - Filter data by different time ranges (weekly, monthly, yearly)
-- Analyze category distribution to understand your activity patterns
 
 **Data Management**
 - Export your complete activity history as JSON

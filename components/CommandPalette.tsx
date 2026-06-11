@@ -9,7 +9,6 @@ import {
   Plus,
   BarChart3,
   History,
-  Download,
   Settings,
   Target,
   X
@@ -91,16 +90,6 @@ export function CommandPalette({ isOpen, onClose, onViewChange, onQuickAdd }: Co
       shortcut: 'g h',
       action: () => {
         onViewChange('history');
-        onClose();
-      }
-    },
-    {
-      id: 'import-export',
-      label: 'Import/Export',
-      icon: Download,
-      shortcut: 'g i',
-      action: () => {
-        onViewChange('import-export');
         onClose();
       }
     },

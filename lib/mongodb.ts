@@ -65,6 +65,12 @@ export async function getUserInfoCollection(): Promise<Collection<UserInfo>> {
   // Create indexes for better performance
   await collection.createIndex({ log_code: 1 }, { unique: true });
   await collection.createIndex({ session_id: 1 });
+  await collection.createIndex({ session_code: 1 });
+  await collection.createIndex({ mobileNo: 1 });
+  await collection.createIndex({ mobileNumber: 1 });
+  await collection.createIndex({ session_code: 1, mobileNo: 1 });
+  await collection.createIndex({ sessionCode: 1, mobileNumber: 1 });
+  await collection.createIndex({ mobileNumber: 1, sessionCode: 1 });
   
   return collection;
 }

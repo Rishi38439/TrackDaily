@@ -2,7 +2,6 @@ export interface Activity {
   id: string;
   sessionId: string;
   name: string;
-  category: string;
   duration: number; // in minutes
   timestamp: number; // timestamp in ms
   notes?: string;
@@ -12,7 +11,13 @@ export interface Session {
   id: string;
   code: string; // 5-digit unique code
   startDate: number;
+  createdAt?: number;
+  expiresAt?: number;
+  status?: 'active' | 'inactive' | 'expired';
+  lastLoginAt?: number | null;
   logCode?: string; // MongoDB log code
+  mobileNo?: string;
+  mobileNumber?: string;
 }
 
 export type TimeRange = 'weekly' | 'monthly' | 'yearly';
@@ -21,7 +26,6 @@ export interface ActivityStats {
   totalActivities: number;
   totalDuration: number;
   averageDuration: number;
-  mostCommonCategory: string;
 }
 
 export interface ChartData {
@@ -32,11 +36,19 @@ export interface ChartData {
 
 export interface UserInfo {
   _id?: string;
+  id?: string;
   log_code: string; // 5-digit unique code
   session_id: string;
   session_code: string; // 5-character alphanumeric code
-  createdAT: Date;
-  UpdatedAt: Date;
+  createdAt?: Date;
+  expiresAt?: Date;
+  status?: 'active' | 'inactive' | 'expired';
+  lastLoginAt?: Date | null;
+  createdAT?: Date;
+  UpdatedAt?: Date;
+  mobileNo?: string;
+  mobileNumber?: string;
+  sessionCode?: string;
 }
 
 export interface AuthState {
@@ -48,6 +60,8 @@ export interface AuthState {
 
 export interface LoginCredentials {
   sessionCode: string;
+  mobileNumber: string;
+  verificationToken?: string;
 }
 
 export interface RegisterData {

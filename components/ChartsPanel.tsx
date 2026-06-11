@@ -1,7 +1,7 @@
 'use client';
 
 import { Activity } from '@/types/activity';
-import { getChartData, getCategoryColor } from '@/lib/activityUtils';
+import { getActivityColor, getChartData } from '@/lib/activityUtils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -45,16 +45,15 @@ export function ChartsPanel({ activities }: ChartsPanelProps) {
 
   const weekData = getChartData(activities, 7);
 
-  // Calculate category breakdown
-  const categoryData = Object.entries(
+  const activityData = Object.entries(
     activities.reduce((acc, a) => {
-      acc[a.category] = (acc[a.category] || 0) + a.duration;
+      acc[a.name] = (acc[a.name] || 0) + a.duration;
       return acc;
     }, {} as Record<string, number>)
-  ).map(([category, duration]) => ({
-    name: category.charAt(0).toUpperCase() + category.slice(1),
+  ).map(([activityName, duration]) => ({
+    name: activityName,
     value: duration,
-    fill: getCategoryColor(category),
+    fill: getActivityColor(activityName),
   }));
 
   return (
@@ -67,7 +66,7 @@ export function ChartsPanel({ activities }: ChartsPanelProps) {
         <Tabs defaultValue="duration" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="duration">Duration Trend</TabsTrigger>
-            <TabsTrigger value="breakdown">Category Breakdown</TabsTrigger>
+            <TabsTrigger value="breakdown">Activity Breakdown</TabsTrigger>
           </TabsList>
 
           <TabsContent value="duration" className="mt-6">
@@ -106,7 +105,7 @@ export function ChartsPanel({ activities }: ChartsPanelProps) {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={categoryData}
+                    data={activityData}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
@@ -115,7 +114,7 @@ export function ChartsPanel({ activities }: ChartsPanelProps) {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {categoryData.map((entry, index) => (
+                    {activityData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
                   </Pie>

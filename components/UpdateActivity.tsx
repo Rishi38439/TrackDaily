@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Edit3, Save, X } from 'lucide-react';
 
 interface UpdateActivityProps {
@@ -21,21 +20,18 @@ export function UpdateActivity({ activities, onUpdateActivity }: UpdateActivityP
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    category: '',
     duration: '',
     notes: ''
   });
 
   const filteredActivities = activities.filter(activity =>
-    activity.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    activity.category.toLowerCase().includes(searchTerm.toLowerCase())
+    activity.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSelectActivity = (activity: Activity) => {
     setSelectedActivity(activity);
     setFormData({
       name: activity.name,
-      category: activity.category,
       duration: activity.duration.toString(),
       notes: activity.notes || ''
     });
@@ -50,7 +46,6 @@ export function UpdateActivity({ activities, onUpdateActivity }: UpdateActivityP
     if (selectedActivity) {
       setFormData({
         name: selectedActivity.name,
-        category: selectedActivity.category,
         duration: selectedActivity.duration.toString(),
         notes: selectedActivity.notes || ''
       });
@@ -71,7 +66,6 @@ export function UpdateActivity({ activities, onUpdateActivity }: UpdateActivityP
 
     const updates: Partial<Activity> = {
       name: formData.name,
-      category: formData.category,
       duration: duration,
       notes: formData.notes || undefined
     };
@@ -79,8 +73,6 @@ export function UpdateActivity({ activities, onUpdateActivity }: UpdateActivityP
     onUpdateActivity(selectedActivity.id, updates);
     setIsEditing(false);
   };
-
-  const categories = ['cardio', 'strength', 'flexibility', 'sports', 'outdoor', 'mind', 'other'];
 
   return (
     <Card className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-md">
@@ -99,7 +91,7 @@ export function UpdateActivity({ activities, onUpdateActivity }: UpdateActivityP
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50" />
             <Input
               id="search"
-              placeholder="Search by name or category..."
+              placeholder="Search by name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/50"
@@ -123,7 +115,7 @@ export function UpdateActivity({ activities, onUpdateActivity }: UpdateActivityP
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="font-medium text-white">{activity.name}</p>
-                    <p className="text-sm text-white/60">{activity.category} • {activity.duration}min</p>
+                    <p className="text-sm text-white/60">{activity.duration}min</p>
                   </div>
                 </div>
               </div>
@@ -179,26 +171,6 @@ export function UpdateActivity({ activities, onUpdateActivity }: UpdateActivityP
                   disabled={!isEditing}
                   className="bg-black border border-white/10 text-white disabled:opacity-50"
                 />
-              </div>
-
-              <div>
-                <Label htmlFor="category">Category</Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) => setFormData({ ...formData, category: value })}
-                  disabled={!isEditing}
-                >
-                  <SelectTrigger className="bg-black border border-white/10 text-white disabled:opacity-50">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               <div>

@@ -3,16 +3,24 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Session, AuthState, LoginCredentials, RegisterData } from '@/types/activity';
 import { createSession } from '@/lib/sessionUtils';
-import { getUserInfoBySessionCode } from '@/lib/userServiceClient';
+import { loginWithSessionCode } from '@/lib/userServiceClient';
+import { sendOtp, verifyOtp, SendOtpResult, VerifyOtpResult } from '@/lib/otpService';
+import { normalizeMobileNumber } from '@/lib/phone';
 
 const SESSION_KEY = 'session';
 const AUTH_KEY = 'auth_state';
+const OTP_VERIFIED_MOBILE_KEY = 'otp_verified_mobile';
+const OTP_VERIFICATION_TOKEN_KEY = 'otp_verification_token';
 
 type AuthContextValue = AuthState & {
   login: (credentials: LoginCredentials) => Promise<boolean>;
-  register: () => Promise<RegisterData | null>;
+  register: (mobileNo?: string) => Promise<RegisterData | null>;
   logout: () => void;
   clearError: () => void;
+  sendLoginOtp: (mobileNo: string) => Promise<SendOtpResult>;
+  verifyLoginOtp: (mobileNo: string, otp: string) => Promise<VerifyOtpResult>;
+  isOtpVerified: () => string | null;
+  clearOtpVerification: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -86,20 +94,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [authState, authState.isLoading]);
 
+  const sendLoginOtp = useCallback(async (mobileNo: string): Promise<SendOtpResult> => {
+    return await sendOtp(normalizeMobileNumber(mobileNo));
+  }, []);
+
+  const verifyLoginOtp = useCallback(async (mobileNo: string, otp: string): Promise<VerifyOtpResult> => {
+    const normalizedMobileNo = normalizeMobileNumber(mobileNo);
+    const result = await verifyOtp(normalizedMobileNo, otp);
+    if (result.success && result.verified) {
+      // Store verified mobile and verification token in session storage for this browser session
+      sessionStorage.setItem(OTP_VERIFIED_MOBILE_KEY, normalizedMobileNo);
+      if (result.verificationToken) {
+        sessionStorage.setItem(OTP_VERIFICATION_TOKEN_KEY, result.verificationToken);
+      }
+    }
+    return result;
+  }, []);
+
+  const isOtpVerified = useCallback((): string | null => {
+    return sessionStorage.getItem(OTP_VERIFIED_MOBILE_KEY);
+  }, []);
+
+  const clearOtpVerification = useCallback(() => {
+    sessionStorage.removeItem(OTP_VERIFIED_MOBILE_KEY);
+    sessionStorage.removeItem(OTP_VERIFICATION_TOKEN_KEY);
+  }, []);
+
   const login = useCallback(async (credentials: LoginCredentials): Promise<boolean> => {
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const existingSession = await getUserInfoBySessionCode(credentials.sessionCode);
+      const mobileNumber = normalizeMobileNumber(credentials.mobileNumber);
+      const verifiedMobile = sessionStorage.getItem(OTP_VERIFIED_MOBILE_KEY);
+      const verificationToken = credentials.verificationToken || sessionStorage.getItem(OTP_VERIFICATION_TOKEN_KEY) || '';
 
-      if (existingSession) {
+      if (verifiedMobile !== mobileNumber || !verificationToken) {
+        setAuthState(prev => ({ ...prev, isLoading: false, error: 'Mobile number not verified. Please verify with OTP first.' }));
+        return false;
+      }
+
+      const result = await loginWithSessionCode(mobileNumber, credentials.sessionCode, verificationToken);
+
+      if (result.success && result.session) {
         const session: Session = {
-          id: existingSession.session_id,
-          code: existingSession.session_code,
-          startDate: typeof existingSession.createdAT === 'string'
-            ? new Date(existingSession.createdAT).getTime()
-            : existingSession.createdAT.getTime(),
-          logCode: existingSession.log_code,
+          id: result.session.id,
+          code: result.session.code,
+          startDate: result.session.startDate,
+          createdAt: result.session.createdAt,
+          expiresAt: result.session.expiresAt,
+          status: result.session.status,
+          lastLoginAt: result.session.lastLoginAt ?? null,
+          logCode: result.session.logCode,
+          mobileNo: result.session.mobileNo ?? result.session.mobileNumber,
+          mobileNumber: result.session.mobileNumber ?? result.session.mobileNo,
         };
 
         localStorage.setItem(SESSION_KEY, JSON.stringify(session));
@@ -111,26 +158,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           error: null,
         });
 
-        // notify other hooks/components relying on localStorage if needed
         window.dispatchEvent(new Event('storage'));
-
+        sessionStorage.removeItem(OTP_VERIFIED_MOBILE_KEY);
+        sessionStorage.removeItem(OTP_VERIFICATION_TOKEN_KEY);
         return true;
-      } else {
-        setAuthState(prev => ({ ...prev, isLoading: false, error: 'Invalid session code. Please check and try again.' }));
-        return false;
       }
+
+      setAuthState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: result.error || 'Invalid session code or mobile number. Please check and try again.',
+      }));
+      return false;
     } catch (error) {
       console.error('Login failed:', error);
       setAuthState(prev => ({ ...prev, isLoading: false, error: 'Login failed. Please try again.' }));
-      return false;
+        return false;
     }
   }, []);
 
-  const register = useCallback(async (): Promise<RegisterData | null> => {
+  const register = useCallback(async (mobileNo?: string): Promise<RegisterData | null> => {
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const newSession = await createSession();
+      // Check if mobile is OTP verified when a mobile number is provided
+      if (mobileNo) {
+        const verifiedMobile = sessionStorage.getItem(OTP_VERIFIED_MOBILE_KEY);
+        const normalizedMobileNo = normalizeMobileNumber(mobileNo);
+        if (verifiedMobile !== normalizedMobileNo) {
+          setAuthState(prev => ({ ...prev, isLoading: false, error: 'Mobile number not verified. Please verify with OTP first.' }));
+          return null;
+        }
+      }
+
+      const newSession = await createSession(mobileNo);
 
       localStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
 
@@ -180,6 +241,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     register,
     logout,
     clearError,
+    sendLoginOtp,
+    verifyLoginOtp,
+    isOtpVerified,
+    clearOtpVerification,
   };
 
   return React.createElement(AuthContext.Provider, { value }, children);

@@ -1,7 +1,7 @@
 import { UserInfo } from '@/types/activity';
 
 // Client-side user service using API calls
-export async function storeUserInfo(log_code: string, session_id: string, session_code: string): Promise<UserInfo> {
+export async function storeUserInfo(log_code: string, session_id: string, session_code: string, mobileNo?: string): Promise<UserInfo> {
   try {
     const response = await fetch('/api/user-info', {
       method: 'POST',
@@ -13,6 +13,7 @@ export async function storeUserInfo(log_code: string, session_id: string, sessio
         log_code,
         session_id,
         session_code,
+        mobileNo,
       }),
     });
 
@@ -61,9 +62,9 @@ export async function getUserInfoBySessionId(session_id: string): Promise<UserIn
   }
 }
 
-export async function getUserInfoBySessionCode(session_code: string): Promise<UserInfo | null> {
+export async function getUserInfoBySessionCodeAndMobile(session_code: string, mobileNo: string): Promise<UserInfo | null> {
   try {
-    const response = await fetch(`/api/user-info?session_code=${session_code}&action=by-session-code`);
+    const response = await fetch(`/api/user-info?session_code=${session_code}&mobileNo=${mobileNo}&action=by-session-code`);
     const result = await response.json();
     
     if (result.success) {
@@ -161,6 +162,46 @@ export async function verifySession(session_code: string, log_code: string): Pro
   } catch (error) {
     console.error('Error verifying session via API:', error);
     throw new Error('Failed to verify session');
+  }
+}
+
+export interface LoginSessionResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+  reason?: 'session_code_mismatch' | 'mobile_number_mismatch' | 'session_expired' | 'session_inactive' | 'otp_not_verified' | 'rate_limited';
+  session?: {
+    id: string;
+    code: string;
+    startDate: number;
+    createdAt?: number;
+    expiresAt?: number;
+    status?: 'active' | 'inactive' | 'expired';
+    lastLoginAt?: number | null;
+    logCode?: string;
+    mobileNo?: string;
+    mobileNumber?: string;
+  };
+}
+
+export async function loginWithSessionCode(mobileNumber: string, sessionCode: string, verificationToken: string): Promise<LoginSessionResult> {
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        mobileNumber,
+        sessionCode,
+        verificationToken,
+      }),
+    });
+
+    return (await response.json()) as LoginSessionResult;
+  } catch (error) {
+    console.error('Error logging in via API:', error);
+    return { success: false, error: 'Failed to sign in. Please try again.' };
   }
 }
 

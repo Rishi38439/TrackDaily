@@ -10,7 +10,6 @@ import {
   PlusCircle, 
   BarChart3, 
   History, 
-  Download, 
   Settings, 
   Menu, 
   X,
@@ -33,7 +32,6 @@ const navigationItems = [
   { id: 'log-activity', label: 'Log Activity', icon: PlusCircle },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'history', label: 'History', icon: History },
-  { id: 'import-export', label: 'Import/Export', icon: Download },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
@@ -72,12 +70,12 @@ export function Layout({
   const todayDuration = todayStats.reduce((acc, activity) => acc + activity.duration, 0);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Ambient animated background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000" />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/8 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/8 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-cyan-500/3 rounded-full blur-3xl animate-pulse delay-2000" />
       </div>
 
       <div className="relative flex h-screen">

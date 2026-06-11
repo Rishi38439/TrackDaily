@@ -32,6 +32,7 @@ export function AuthWrapper() {
     addActivity,
     deleteActivity,
     updateActivity,
+    replaceActivities,
   } = useActivityTracker();
 
   // Show intro animation first
@@ -45,7 +46,7 @@ export function AuthWrapper() {
 
   // Show main app with guest session
   return (
-    <div className="min-h-screen bg-black relative">
+    <div className="min-h-screen relative bg-background text-foreground">
       {/* Live Grid Pulse Network */}
       <LiveGridPulseNetwork />
       
@@ -57,6 +58,7 @@ export function AuthWrapper() {
         onAddActivity={addActivity}
         onDeleteActivity={deleteActivity}
         onUpdateActivity={updateActivity}
+        onReplaceActivities={replaceActivities}
       />
     </div>
   );

@@ -45,8 +45,7 @@ export const useActivityTracker = () => {
     async (
       name: string,
       duration: number,
-      notes?: string,
-      category?: string
+      notes?: string
     ) => {
       const userLogCode = isAuthenticated && session?.logCode ? session.logCode : guestSession?.id;
       if (!userLogCode) {
@@ -64,7 +63,6 @@ export const useActivityTracker = () => {
         id: generateActivityId(),
         sessionId: userLogCode,
         name,
-        category: category || 'other',
         duration,
         timestamp: Date.now(),
         notes,
@@ -90,6 +88,10 @@ export const useActivityTracker = () => {
     },
     [guestSession, session, isAuthenticated]
   );
+
+  const replaceActivities = useCallback((nextActivities: Activity[]) => {
+    setActivities(nextActivities);
+  }, []);
 
   const deleteActivity = useCallback((id: string) => {
     setActivities((prev) => prev.filter((activity) => activity.id !== id));
@@ -131,6 +133,7 @@ export const useActivityTracker = () => {
     addActivity,
     deleteActivity,
     updateActivity,
+    replaceActivities,
     clearAllActivities,
     getActivities,
     getActivitiesByDateRange,
