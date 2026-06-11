@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 import { storeUserInfo, generateLogCode } from './userServiceClient';
 
 /**
@@ -7,9 +8,10 @@ import { storeUserInfo, generateLogCode } from './userServiceClient';
  */
 export function generateSessionCode(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const randomBytes = crypto.randomBytes(5);
   let code = '';
   for (let i = 0; i < 5; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
+    code += chars.charAt(randomBytes[i] % chars.length);
   }
   console.log('[v0] Generated session code:', code);
   return code;

@@ -1,5 +1,6 @@
 import { MongoClient, Db, Collection, Document } from 'mongodb';
 import { UserInfo } from '@/types/activity';
+import type { OtpChallenge, VerificationTokenEntry, RateLimitEntry } from './authSecurity';
 
 // MongoDB connection configuration
 const MONGODB_URI = 'mongodb://localhost:27017/';
@@ -72,5 +73,30 @@ export async function getUserInfoCollection(): Promise<Collection<UserInfo>> {
   await collection.createIndex({ sessionCode: 1, mobileNumber: 1 });
   await collection.createIndex({ mobileNumber: 1, sessionCode: 1 });
   
+  return collection;
+}
+
+export async function getOtpCollection(): Promise<Collection<OtpChallenge>> {
+  const database = await connectToDatabase();
+  const collection = database.collection<OtpChallenge>('otp_challenges');
+  // TTL index to automatically delete expired OTPs
+  await collection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+  await collection.createIndex({ mobileNumber: 1 }, { unique: true });
+  return collection;
+}
+
+export async function getVerificationTokenCollection(): Promise<Collection<VerificationTokenEntry>> {
+  const database = await connectToDatabase();
+  const collection = database.collection<VerificationTokenEntry>('verification_tokens');
+  await collection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+  await collection.createIndex({ token: 1 }, { unique: true });
+  return collection;
+}
+
+export async function getRateLimitCollection(): Promise<Collection<RateLimitEntry>> {
+  const database = await connectToDatabase();
+  const collection = database.collection<RateLimitEntry>('rate_limits');
+  await collection.createIndex({ windowStart: 1 }, { expireAfterSeconds: 86400 });
+  await collection.createIndex({ key: 1 }, { unique: true });
   return collection;
 }

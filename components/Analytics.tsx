@@ -18,6 +18,7 @@ import {
 import { cn } from '@/lib/utils';
 import { ActivityLineGraph } from './ActivityLineGraph';
 import { ActivityInput } from './ActivityInput';
+import { calculateStreakStats } from '@/lib/streakUtils';
 
 interface AnalyticsProps {
   activities: Activity[];
@@ -27,6 +28,8 @@ interface AnalyticsProps {
 export function Analytics({ activities, onAddActivity }: AnalyticsProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
   const [selectedMetric, setSelectedMetric] = useState<'duration' | 'activities'>('duration');
+
+  const streakStats = useMemo(() => calculateStreakStats(activities), [activities]);
 
   // Calculate analytics data
   const analytics = useMemo(() => {
@@ -148,7 +151,7 @@ export function Analytics({ activities, onAddActivity }: AnalyticsProps) {
     },
     {
       title: 'Current Streak',
-      value: '7 days', // This would be calculated from actual data
+      value: `${streakStats.currentStreak} days`,
       icon: Zap,
       color: 'from-purple-500/20 to-pink-500/20',
       accent: 'text-purple-400'

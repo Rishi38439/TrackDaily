@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createOtpChallenge, normalizeLoginMobileNumber, validateMobileNumber } from '@/lib/authSecurity';
 
 export async function POST(request: NextRequest) {
+  const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? request.headers.get('x-real-ip') ?? 'unknown';
+
   try {
     const { action, mobileNumber, mobileNo, otp } = await request.json();
     const normalizedMobileNumber = normalizeLoginMobileNumber(mobileNumber ?? mobileNo ?? '');
@@ -15,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     switch (action) {
       case 'send': {
-        const challenge = createOtpChallenge(normalizedMobileNumber);
+        const challenge = await createOtpChallenge(normalizedMobileNumber, ipAddress);
 
         if (!challenge.success) {
           return NextResponse.json(
@@ -44,7 +46,7 @@ export async function POST(request: NextRequest) {
 
       case 'verify': {
         const { verifyOtpChallenge } = await import('@/lib/authSecurity');
-        const result = verifyOtpChallenge(normalizedMobileNumber, String(otp ?? ''));
+        const result = await verifyOtpChallenge(normalizedMobileNumber, String(otp ?? ''));
 
         if (!result.success) {
           return NextResponse.json(
